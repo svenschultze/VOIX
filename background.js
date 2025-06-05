@@ -1,5 +1,5 @@
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('DOM MCP Agent installed');
+  console.log('VOIX installed');
 });
 
 // Handle extension icon click to toggle chat
@@ -189,7 +189,7 @@ function formatToolsForAPI(tools) {
 }
 
 function createSystemMessage(tools, context) {
-  let systemMessage = `You are a helpful AI assistant integrated into a web browser extension called DOM MCP Agent. You can help users interact with web pages through available tools.
+  let systemMessage = `You are a helpful AI assistant integrated into a web browser extension called VOIX. You can help users interact with web pages through available tools.
 
 Current page context:
 ${context || 'No specific context available.'}
@@ -291,12 +291,12 @@ ${toolsDescription}
 Context:
 ${context}
 
-Return only a JSON array of 3 short, natural user instructions that would use these tools. Each should be 5-15 words.`;
+Return only a JSON array of 3 short, natural user instructions that would use these tools. Each should be 5-15 words. /no_think`;
 
   const requestBody = {
     model: settings.model,
     messages: [{ role: 'user', content: systemPrompt }],
-    max_tokens: 256,
+    max_tokens: 2096,
     temperature: 0.7
   };
 

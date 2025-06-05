@@ -2,23 +2,56 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>DOM MCP Agent - Settings</title>
+  <title>VOIX - Settings</title>
   <style>
+    :root {
+      --bg-primary: #f8f9fa;
+      --bg-secondary: white;
+      --text-primary: #333;
+      --text-secondary: #555;
+      --text-muted: #666;
+      --border-color: #e1e5e9;
+      --shadow: rgba(0,0,0,0.1);
+      --input-bg: white;
+      --preset-bg: #f8f9fa;
+      --preset-btn-bg: #e9ecef;
+      --preset-btn-text: #495057;
+      --preset-btn-hover: #dee2e6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1a202c;
+        --bg-secondary: #2d3748;
+        --text-primary: #f7fafc;
+        --text-secondary: #cbd5e0;
+        --text-muted: #a0aec0;
+        --border-color: #4a5568;
+        --shadow: rgba(0,0,0,0.3);
+        --input-bg: #4a5568;
+        --preset-bg: #2d3748;
+        --preset-btn-bg: #4a5568;
+        --preset-btn-text: #cbd5e0;
+        --preset-btn-hover: #718096;
+      }
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       max-width: 600px;
       margin: 0 auto;
       padding: 40px 20px;
-      background: #f8f9fa;
+      background: var(--bg-primary);
+      color: var(--text-primary);
     }
     .container {
-      background: white;
+      background: var(--bg-secondary);
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px var(--shadow);
     }
     h1 {
-      color: #333;
+      color: var(--text-primary);
       margin-bottom: 30px;
       display: flex;
       align-items: center;
@@ -31,15 +64,17 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
-      color: #555;
+      color: var(--text-secondary);
     }
     input[type="text"], input[type="password"], select {
       width: 100%;
       padding: 12px;
-      border: 2px solid #e1e5e9;
+      border: 2px solid var(--border-color);
       border-radius: 8px;
       font-size: 14px;
       box-sizing: border-box;
+      background: var(--input-bg);
+      color: var(--text-primary);
     }
     input:focus, select:focus {
       outline: none;
@@ -48,7 +83,7 @@
     }
     .help-text {
       font-size: 12px;
-      color: #666;
+      color: var(--text-muted);
       margin-top: 5px;
     }
     .button-group {
@@ -103,14 +138,14 @@
       border: 1px solid #f5c6cb;
     }
     .presets {
-      background: #f8f9fa;
+      background: var(--preset-bg);
       padding: 15px;
       border-radius: 8px;
       margin-bottom: 20px;
     }
     .preset-btn {
-      background: #e9ecef;
-      color: #495057;
+      background: var(--preset-btn-bg);
+      color: var(--preset-btn-text);
       padding: 6px 12px;
       margin: 4px;
       border: none;
@@ -119,14 +154,27 @@
       cursor: pointer;
     }
     .preset-btn:hover {
-      background: #dee2e6;
+      background: var(--preset-btn-hover);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .status.success {
+        background: #1a2e05;
+        color: #4caf50;
+        border: 1px solid #2e7d32;
+      }
+      .status.error {
+        background: #3e1723;
+        color: #f44336;
+        border: 1px solid #d32f2f;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>
-      🤖 DOM MCP Agent Settings
+      🗣️ VOIX Settings
     </h1>
     
     <form id="settings-form">

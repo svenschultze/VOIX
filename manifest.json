@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "DOM MCP Agent",
+  "name": "VOIX",
   "version": "1.0",
-  "description": "AI Agent with DOM-based MCP server for web automation",
+  "description": "AI-powered web automation assistant with intelligent tool discovery",
   "permissions": [
     "activeTab",
     "storage",
@@ -23,7 +23,7 @@
     }
   ],
   "action": {
-    "default_title": "Toggle DOM MCP Agent Chat"
+    "default_title": "Toggle VOIX Chat"
   },
   "options_page": "options.html",
   "icons": {

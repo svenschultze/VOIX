@@ -147,7 +147,7 @@ class DOMInProcessMCPServer {
   async sendMessage(message) {
     // Initialize MCP server if not done
     if (!this.mcpInitialized) {
-      await this.initialize({ name: "dom-agent-client", version: "1.0.0" });
+      await this.initialize({ name: "voix-client", version: "1.0.0" });
       this.mcpInitialized = true;
     }
 
@@ -220,7 +220,10 @@ class DOMInProcessMCPServer {
               
               // Get final response from LLM after tool execution
               const followUpPayload = {
-                messages: [...this.conversation],
+                messages: [...this.conversation, {
+                  role: 'user',
+                  content: 'Please explain what you just did and summarize the results. /no_think'
+                }],
                 tools: toolsResponse.tools,
                 context: context || this.getPageContext()
               };

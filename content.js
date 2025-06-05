@@ -1,12 +1,12 @@
 // content.js
-console.log("DOM Agent Chat content script loaded");
-if (window.DOMAgentChat === undefined) {
-    console.warn('DOMAgentChat is not defined, initializing...');
+console.log("VOIX content script loaded");
+if (window.VOIXChat === undefined) {
+    console.warn('VOIXChat is not defined, initializing...');
 } else {
-    console.warn('DOMAgentChat already defined, skipping initialization.');
-    console.warn(DOMAgentChat);
+    console.warn('VOIXChat already defined, skipping initialization.');
+    console.warn(VOIXChat);
 }
-class DOMAgentChat {
+class VOIXChat {
   constructor() {
     this.mcpServer = new DOMInProcessMCPServer();
     this.messages = [];
@@ -28,7 +28,7 @@ class DOMAgentChat {
     this.setupDragAndResize();
     
     // Signal that the content script is ready
-    console.log('DOM Agent Chat initialized');
+    console.log('VOIX Chat initialized');
   }
 
   async loadSettings() {
@@ -99,21 +99,37 @@ class DOMAgentChat {
             document.getElementById('chat-input').focus();
           });
         });
+        
+        // Add horizontal scroll with normal mouse wheel
+        this.setupHorizontalScrolling(exampleSection);
       } else {
         exampleSection.innerHTML = '<div class="examples-error">Could not load example prompts.</div>';
       }
     });
   }
 
+  setupHorizontalScrolling(element) {
+    element.addEventListener('wheel', (e) => {
+      // Prevent default vertical scrolling
+      e.preventDefault();
+      
+      // Smooth horizontal scrolling with reduced speed
+      const scrollAmount = e.deltaY * 0.5; // Reduce scroll speed by half
+      element.scrollTo({
+        left: element.scrollLeft + scrollAmount,
+      });
+    }, { passive: false });
+  }
+
   createChatUI() {
     // Create chat container
     this.chatContainer = document.createElement('div');
-    this.chatContainer.id = 'dom-agent-chat';
-    this.chatContainer.className = `dom-agent-chat-container hidden ${this.mode}`;
+    this.chatContainer.id = 'voix-chat';
+    this.chatContainer.className = `voix-chat-container hidden ${this.mode}`;
     
     this.chatContainer.innerHTML = `
       <div class="chat-header" id="chat-header">
-        <span>🤖 DOM Agent</span>
+        <span>VOIX</span>
         <div class="chat-controls">
           <button id="chat-close-btn" class="chat-btn close" title="Close">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -122,13 +138,31 @@ class DOMAgentChat {
           </button>
         </div>
       </div>
-      <div class="chat-examples" id="chat-examples"></div>
+      <div class="chat-tools-overview" id="chat-tools-overview">
+        <div class="tools-overview-header">
+          <span class="tools-overview-title">🔧 Available Tools</span>
+          <button id="tools-overview-toggle" class="tools-overview-toggle" title="Toggle tools overview">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 14L12 9L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="tools-overview-content" id="tools-overview-content">
+          <div class="tools-overview-loading">Scanning for tools...</div>
+        </div>
+      </div>
       <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-examples" id="chat-examples"></div>
       <div class="chat-tools hidden" id="chat-tools">
         <div class="tools-header">Available Tools:</div>
         <div class="tools-list" id="tools-list"></div>
       </div>
       <div class="chat-input-container">
+        <button id="think-toggle-btn" class="think-toggle-btn" title="Toggle thinking mode">
+          <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C8.13 2 5 5.13 5 9C5 11.38 6.19 13.47 8 14.74V17C8 17.55 8.45 18 9 18H15C15.55 18 16 17.55 16 17V14.74C17.81 13.47 19 11.38 19 9C19 5.13 15.87 2 12 2M14 13.58V16H13V11.41L14.71 9.71C15.1 9.32 15.1 8.68 14.71 8.29C14.32 7.9 13.68 7.9 13.29 8.29L12 9.59L10.71 8.29C10.32 7.9 9.68 7.9 9.29 8.29C8.9 8.68 8.9 9.32 9.29 9.71L11 11.41V16H10V13.58C8.23 12.81 7 11.05 7 9C7 6.24 9.24 4 12 4S17 6.24 17 9C17 11.05 15.77 12.81 14 13.58M9 20H15V21C15 21.55 14.55 22 14 22H10C9.45 22 9 21.55 9 21V20Z" fill="currentColor"/>
+          </svg>
+        </button>
         <input type="text" id="chat-input" placeholder="Ask me to help with this page..." />
         <button id="chat-send-btn" class="chat-send-btn">Send</button>
       </div>
@@ -155,15 +189,50 @@ class DOMAgentChat {
   }
 
   setupEventListeners() {
-    console.log('Setting up event listeners for DOM Agent Chat');
+    console.log('Setting up event listeners for VOIX Chat');
+    // Initialize think toggle state
+    this.thinkModeEnabled = false;
+    
     // Send message
     const sendBtn = document.getElementById('chat-send-btn');
     const input = document.getElementById('chat-input');
+    const thinkToggleBtn = document.getElementById('think-toggle-btn');
     
     sendBtn.addEventListener('click', () => this.sendMessage());
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') this.sendMessage();
     });
+
+    // Think toggle functionality
+    thinkToggleBtn.addEventListener('click', () => {
+      this.thinkModeEnabled = !this.thinkModeEnabled;
+      thinkToggleBtn.classList.toggle('active', this.thinkModeEnabled);
+      thinkToggleBtn.title = this.thinkModeEnabled ? 'Thinking mode ON' : 'Thinking mode OFF';
+    });
+
+    // Tools overview toggle functionality
+    const toolsOverviewToggle = document.getElementById('tools-overview-toggle');
+    const toolsOverviewHeader = document.querySelector('.tools-overview-header');
+    const toolsOverviewContent = document.getElementById('tools-overview-content');
+    
+    if (toolsOverviewToggle && toolsOverviewHeader && toolsOverviewContent) {
+      // Toggle functionality for both button and header
+      const toggleOverview = () => {
+        const isCollapsed = toolsOverviewContent.classList.contains('collapsed');
+        
+        toolsOverviewContent.classList.toggle('collapsed');
+        toolsOverviewToggle.classList.toggle('collapsed', !isCollapsed);
+        
+        // Rotate the arrow icon
+        const svg = toolsOverviewToggle.querySelector('svg');
+        if (svg) {
+          svg.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      };
+      
+      toolsOverviewToggle.addEventListener('click', toggleOverview);
+      toolsOverviewHeader.addEventListener('click', toggleOverview);
+    }
 
     // Only close button
     document.getElementById('chat-close-btn').addEventListener('click', () => this.hide());
@@ -337,21 +406,21 @@ class DOMAgentChat {
 
   injectLayoutCSS(panelWidth) {
     // Remove existing injected CSS
-    const existingStyle = document.getElementById('dom-agent-layout-css');
+    const existingStyle = document.getElementById('voix-layout-css');
     if (existingStyle) {
       existingStyle.remove();
     }
     
     // Create new CSS rules
     const style = document.createElement('style');
-    style.id = 'dom-agent-layout-css';
+    style.id = 'voix-layout-css';
     
     let cssRules = '';
     
     if (this.mode === 'side-panel-right') {
       cssRules = `
         /* Ensure our panel stays fixed and on top */
-        .dom-agent-chat-container.side-panel-right {
+        .voix-chat-container.side-panel-right {
           position: fixed !important;
           right: 0 !important;
           top: 0 !important;
@@ -361,7 +430,7 @@ class DOMAgentChat {
         }
         
         /* Only adjust elements that explicitly use viewport width */
-        body > *:not(.dom-agent-chat-container) {
+        body > *:not(.voix-chat-container) {
           max-width: calc(100vw - ${panelWidth}px) !important;
         }
         
@@ -374,7 +443,7 @@ class DOMAgentChat {
     } else if (this.mode === 'side-panel-left') {
       cssRules = `
         /* Ensure our panel stays fixed and on top */
-        .dom-agent-chat-container.side-panel-left {
+        .voix-chat-container.side-panel-left {
           position: fixed !important;
           left: 0 !important;
           top: 0 !important;
@@ -384,7 +453,7 @@ class DOMAgentChat {
         }
         
         /* Only adjust elements that explicitly use viewport width */
-        body > *:not(.dom-agent-chat-container) {
+        body > *:not(.voix-chat-container) {
           max-width: calc(100vw - ${panelWidth}px) !important;
           margin-left: ${panelWidth}px !important;
         }
@@ -404,7 +473,7 @@ class DOMAgentChat {
 
   restoreWebsiteLayout() {
     // Remove injected CSS
-    const injectedStyle = document.getElementById('dom-agent-layout-css');
+    const injectedStyle = document.getElementById('voix-layout-css');
     if (injectedStyle) {
       injectedStyle.remove();
     }
@@ -422,7 +491,7 @@ class DOMAgentChat {
   setMode(newMode) {
     const oldMode = this.mode;
     this.mode = newMode;
-    this.chatContainer.className = `dom-agent-chat-container ${this.isVisible ? '' : 'hidden'} ${this.mode}`;
+    this.chatContainer.className = `voix-chat-container ${this.isVisible ? '' : 'hidden'} ${this.mode}`;
     
     if (this.mode === 'side-panel-right') {
       this.chatContainer.style.left = 'auto';
@@ -460,6 +529,7 @@ class DOMAgentChat {
     console.log('Showing chat');
     this.chatContainer.classList.remove('hidden');
     this.isVisible = true;
+    this.updateToolsOverview();
     this.updateToolsList();
     this.showExamplesSection();
     
@@ -496,11 +566,16 @@ class DOMAgentChat {
     
     if (!message) return;
     
-    this.addMessage('user', message);
+    // Add think mode suffix
+    const messageWithThinkMode = this.thinkModeEnabled ? 
+      `${message} /think` : 
+      `${message} /no_think`;
+    
+    this.addMessage('user', message); // Display original message without suffix
     input.value = '';
     
-    // Delegate everything to MCP server
-    this.mcpServer.sendMessage(message)
+    // Delegate everything to MCP server with think mode suffix
+    this.mcpServer.sendMessage(messageWithThinkMode)
       .then(response => {
         this.addMessage('assistant', response);
       })
@@ -549,25 +624,168 @@ class DOMAgentChat {
     });
   }
 
-  scanAndShowTools() {
-    this.mcpServer.listTools().then(response => {
-      const tools = response.tools;
+  async updateToolsOverview() {
+    const overviewContent = document.getElementById('tools-overview-content');
+    
+    try {
+      // Get tools and resources in parallel
+      const [toolsResponse, resourcesResponse] = await Promise.all([
+        this.mcpServer.listTools(),
+        this.mcpServer.listResources()
+      ]);
       
-      if (tools.length === 0) {
-        this.addMessage('system', 'No tools found on this page.');
+      const tools = toolsResponse.tools || [];
+      const resources = resourcesResponse.resources || [];
+      
+      if (tools.length === 0 && resources.length === 0) {
+        overviewContent.innerHTML = `
+          <div class="tools-overview-empty">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-text">No tools or resources detected on this page</div>
+            <div class="empty-subtext">Navigate to a page with interactive elements to see available tools</div>
+          </div>
+        `;
         return;
       }
       
-      this.addMessage('system', `Found ${tools.length} tool(s) on this page:`);
+      let html = '';
       
-      tools.forEach(tool => {
-        this.addMessage('system', `🔧 ${tool.name}: ${tool.description}`);
-      });
-    }).catch(error => {
-      console.error('Error scanning tools:', error);
-      this.addMessage('system', 'Error scanning for tools on this page.');
-    });
+      // Tools section
+      if (tools.length > 0) {
+        html += `
+          <div class="tools-section">
+            <div class="tools-section-header">
+              <span class="tools-section-title">🛠️ Tools (${tools.length})</span>
+            </div>
+            <div class="tools-grid">
+        `;
+        
+        tools.forEach(tool => {
+          // Extract tool category from name or description for better organization
+          const category = this.getToolCategory(tool.name, tool.description);
+          html += `
+            <div class="tool-card ${category}">
+              <div class="tool-header">
+                <span class="tool-icon">${this.getToolIcon(category)}</span>
+                <span class="tool-name">${tool.name}</span>
+              </div>
+              <div class="tool-description">${tool.description}</div>
+              ${tool.inputSchema && tool.inputSchema.properties ? 
+                `<div class="tool-params">
+                  <span class="params-label">Parameters:</span>
+                  ${Object.keys(tool.inputSchema.properties).slice(0, 3).join(', ')}
+                  ${Object.keys(tool.inputSchema.properties).length > 3 ? '...' : ''}
+                </div>` : ''
+              }
+            </div>
+          `;
+        });
+        
+        html += `
+            </div>
+          </div>
+        `;
+      }
+      
+      // Resources section
+      if (resources.length > 0) {
+        html += `
+          <div class="resources-section">
+            <div class="resources-section-header">
+              <span class="resources-section-title">📄 Resources (${resources.length})</span>
+            </div>
+            <div class="resources-list">
+        `;
+        
+        resources.forEach(resource => {
+          const resourceType = this.getResourceType(resource.uri, resource.mimeType);
+          html += `
+            <div class="resource-item ${resourceType}">
+              <span class="resource-icon">${this.getResourceIcon(resourceType)}</span>
+              <div class="resource-info">
+                <div class="resource-name">${resource.name || resource.uri}</div>
+                <div class="resource-type">${resource.mimeType || 'Unknown type'}</div>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `
+            </div>
+          </div>
+        `;
+      }
+      
+      overviewContent.innerHTML = html;
+      
+    } catch (error) {
+      console.error('Error updating tools overview:', error);
+      overviewContent.innerHTML = `
+        <div class="tools-overview-error">
+          <div class="error-icon">⚠️</div>
+          <div class="error-text">Error loading tools information</div>
+        </div>
+      `;
+    }
+  }
+
+  getToolCategory(name, description) {
+    const nameAndDesc = (name + ' ' + description).toLowerCase();
+    
+    if (nameAndDesc.includes('form') || nameAndDesc.includes('submit') || nameAndDesc.includes('input')) {
+      return 'form';
+    } else if (nameAndDesc.includes('click') || nameAndDesc.includes('button')) {
+      return 'interaction';
+    } else if (nameAndDesc.includes('navigate') || nameAndDesc.includes('url') || nameAndDesc.includes('link')) {
+      return 'navigation';
+    } else if (nameAndDesc.includes('text') || nameAndDesc.includes('content') || nameAndDesc.includes('read')) {
+      return 'content';
+    } else if (nameAndDesc.includes('scroll') || nameAndDesc.includes('page')) {
+      return 'page';
+    } else {
+      return 'general';
+    }
+  }
+
+  getToolIcon(category) {
+    const icons = {
+      form: '📝',
+      interaction: '👆',
+      navigation: '🧭',
+      content: '📄',
+      page: '📜',
+      general: '🔧'
+    };
+    return icons[category] || '🔧';
+  }
+
+  getResourceType(uri, mimeType) {
+    if (mimeType) {
+      if (mimeType.includes('text')) return 'text';
+      if (mimeType.includes('image')) return 'image';
+      if (mimeType.includes('json')) return 'data';
+      if (mimeType.includes('html')) return 'html';
+    }
+    
+    if (uri) {
+      if (uri.includes('.json')) return 'data';
+      if (uri.includes('.html')) return 'html';
+      if (uri.match(/\.(jpg|jpeg|png|gif|svg)$/i)) return 'image';
+    }
+    
+    return 'generic';
+  }
+
+  getResourceIcon(type) {
+    const icons = {
+      text: '📝',
+      image: '🖼️',
+      data: '📊',
+      html: '🌐',
+      generic: '📄'
+    };
+    return icons[type] || '📄';
   }
 }
 
-window.DOMAgentChat = new DOMAgentChat();
+window.VOIXChat = new VOIXChat();
