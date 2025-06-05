@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DOM MCP Agent Test Page</title>
+</head>
+<body>
+    <h1>DOM MCP Agent Test Page</h1>
+    <p>This page contains test tools for the DOM MCP Agent extension.</p>
+    
+    <!-- Test tools for the MCP server to discover -->
+    <tool name="set_schedule" description="Set a daily work schedule">
+        <array name="schedule" description="Array of schedule items" required>
+            <dict>
+                <prop name="starttime" type="string" description="Start time in HH:MM format" required>09:00</prop>
+                <prop name="endtime" type="string" description="End time in HH:MM format" required>17:00</prop>
+                <prop name="type" type="string" description="Type of activity" required>work</prop>
+            </dict>
+        </array>
+    </tool>
+    
+    <tool name="switch_date" description="Switch to a specific date">
+        <prop name="date" type="string" description="Date in YYYY-MM-DD format" required>2025-06-10</prop>
+    </tool>
+    
+    <tool name="plan_absence" description="Plan an absence or vacation">
+        <prop name="type" type="string" description="Type of absence">vacation</prop>
+        <prop name="from" type="string" description="Start date in YYYY-MM-DD format" required>2025-06-15</prop>
+        <prop name="to" type="string" description="End date in YYYY-MM-DD format" required>2025-06-20</prop>
+    </tool>
+    
+    <!-- Context information -->
+    <context name="current_user">
+        Current user: Sven Schultze
+        Current date: June 5, 2025
+        Timezone: Central European Time
+    </context>
+    
+    <context name="page_info">
+        This is a calendar/scheduling application test page.
+        Available actions: schedule management, date navigation, absence planning.
+    </context>
+    
+    <div style="margin-top: 50px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+        <h2>Instructions:</h2>
+        <ol>
+            <li>Click the extension icon in the Chrome toolbar</li>
+            <li>Try clicking "Open Chat" or "Scan Page Tools"</li>
+            <li>Or press <kbd>Ctrl+Shift+A</kbd> to toggle the chat</li>
+            <li>Check the browser console (F12) for debug messages</li>
+        </ol>
+        
+        <p><strong>Expected behavior:</strong> The chat should open and show 3 tools found on this page.</p>
+    </div>
+    
+    <script>
+        // Add event listeners to see when tools are called
+        document.querySelectorAll('tool').forEach(tool => {
+            tool.addEventListener('call', (event) => {
+                console.log('Tool called:', event.detail);
+                alert(`Tool "${event.detail.name}" was called with arguments: ${JSON.stringify(event.detail.arguments)}`);
+            });
+        });
+        
+        console.log('Test page loaded with', document.querySelectorAll('tool').length, 'tools');
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "DOM MCP Agent",
+  "version": "1.0",
+  "description": "AI Agent with DOM-based MCP server for web automation",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["mcp-server.js", "content.js"],
+      "css": ["chat.css"]
+    }
+  ],
+  "action": {
+    "default_title": "Toggle DOM MCP Agent Chat"
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+}
