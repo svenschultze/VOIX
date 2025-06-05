@@ -48,6 +48,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch(error => sendResponse({ success: false, error: error.message }));
     return true;
   }
+
+  // Add a new message type for example prompts
+  if (message.type === 'GET_EXAMPLE_PROMPTS') {
+    generateExamplePrompts(message.data)
+      .then(response => sendResponse(response))
+      .catch(error => sendResponse({ error: error.message }));
+    return true;
+  }
 });
 
 async function getSettings() {
@@ -169,14 +177,22 @@ async function handleLLMRequest(data) {
   }
 }
 
+function formatToolsForAPI(tools) {
+  return tools.map(tool => ({
+    type: 'function',
+    function: {
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.inputSchema || tool.schema // Support both new and legacy format
+    }
+  }));
+}
+
 function createSystemMessage(tools, context) {
   let systemMessage = `You are a helpful AI assistant integrated into a web browser extension called DOM MCP Agent. You can help users interact with web pages through available tools.
 
 Current page context:
 ${context || 'No specific context available.'}
-
-Available tools:
-${tools.map(tool => `- ${tool.name}: ${tool.description}`).join('\n') || 'No tools available on this page.'}
 
 Instructions:
 - Help the user accomplish tasks on the current web page
@@ -188,16 +204,6 @@ Instructions:
   return systemMessage;
 }
 
-function formatToolsForAPI(tools) {
-  return tools.map(tool => ({
-    type: 'function',
-    function: {
-      name: tool.name,
-      description: tool.description,
-      parameters: tool.schema
-    }
-  }));
-}
 
 // Fallback mock responses (keeping the original logic as backup)
 async function handleMockResponse(data) {
@@ -251,4 +257,92 @@ async function handleMockResponse(data) {
     type: 'message',
     content: `I can help you with web automation tasks. ${tools.length > 0 ? `I found ${tools.length} tools available on this page: ${tools.map(t => t.name).join(', ')}.` : 'No tools are available on this page.'}\n\nTo use the AI features, please configure your OpenAI API key in the extension settings.`
   };
+}
+
+async function generateExamplePrompts({ tools, context }) {
+  const settings = await getSettings();
+  
+  // If no API key, return fallback examples
+  if (!settings.apiKey) {
+    return {
+      prompts: [
+        "What tools are available on this page?",
+        "Help me with this page",
+        "Show me what I can do here"
+      ]
+    };
+  }
+
+  // Build detailed tool descriptions for better prompt generation
+  const toolsDescription = tools.map(tool => {
+    let desc = `${tool.name}: ${tool.description}`;
+    if (tool.params && tool.params.length > 0) {
+      const params = tool.params.map(p => `${p.name} (${p.type})`).join(', ');
+      desc += ` [Parameters: ${params}]`;
+    }
+    return desc;
+  }).join('\n');
+
+  const systemPrompt = `Generate 3 example user instructions for an AI assistant with these tools and context:
+
+Tools:
+${toolsDescription}
+
+Context:
+${context}
+
+Return only a JSON array of 3 short, natural user instructions that would use these tools. Each should be 5-15 words.`;
+
+  const requestBody = {
+    model: settings.model,
+    messages: [{ role: 'user', content: systemPrompt }],
+    max_tokens: 256,
+    temperature: 0.7
+  };
+
+  try {
+    const response = await fetch(`${settings.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${settings.apiKey}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error ${response.status}`);
+    }
+
+    const result = await response.json();
+    let content = result.choices?.[0]?.message?.content;
+    
+    // Try to parse JSON array from response
+    const jsonMatch = content.match(/\[.*?\]/s);
+    if (jsonMatch) {
+      const prompts = JSON.parse(jsonMatch[0]);
+      return { prompts };
+    }
+    
+    throw new Error('No JSON array found in response');
+  } catch (error) {
+    console.error('Failed to generate example prompts:', error);
+    // Return fallback examples based on available tools
+    const fallbackPrompts = [];
+    if (tools.some(t => t.name.includes('schedule'))) {
+      fallbackPrompts.push("Set my work schedule for today");
+    }
+    if (tools.some(t => t.name.includes('date'))) {
+      fallbackPrompts.push("Switch to tomorrow's date");
+    }
+    if (tools.some(t => t.name.includes('absence'))) {
+      fallbackPrompts.push("Plan my vacation next week");
+    }
+    
+    if (fallbackPrompts.length === 0) {
+      fallbackPrompts.push("What can you help me with?", "Show available tools", "Help me with this page");
+    }
+    
+    return { prompts: fallbackPrompts.slice(0, 3) };
+  }
 }

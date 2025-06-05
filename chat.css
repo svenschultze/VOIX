@@ -8,7 +8,6 @@
   display: flex;
   flex-direction: column;
   border: 1px solid #e1e5e9;
-  resize: both;
   overflow: hidden;
   min-width: 300px;
   min-height: 400px;
@@ -78,29 +77,40 @@
   height: 100vh;
 }
 
-/* Resizable handle for side panels */
+/* Resizable handle for side panels - make them more visible and clickable */
 .dom-agent-chat-container.side-panel-right::before {
   content: '';
   position: absolute;
-  left: 0;
+  left: -8px;
   top: 0;
-  width: 4px;
+  width: 16px;
   height: 100%;
-  background: #007bff;
+  background: transparent;
   cursor: ew-resize;
   z-index: 1;
+  border-left: 2px solid rgba(0, 123, 255, 0.3);
 }
 
 .dom-agent-chat-container.side-panel-left::after {
   content: '';
   position: absolute;
-  right: 0;
+  right: -8px;
   top: 0;
-  width: 4px;
+  width: 16px;
   height: 100%;
-  background: #007bff;
+  background: transparent;
   cursor: ew-resize;
   z-index: 1;
+  border-right: 2px solid rgba(0, 123, 255, 0.3);
+}
+
+/* Show resize handle on hover */
+.dom-agent-chat-container.side-panel-right:hover::before {
+  border-left-color: #007bff;
+}
+
+.dom-agent-chat-container.side-panel-left:hover::after {
+  border-right-color: #007bff;
 }
 
 .chat-header {
@@ -182,7 +192,7 @@
 
 .dom-agent-chat-container.side-panel-right,
 .dom-agent-chat-container.side-panel-left {
-  resize: horizontal;
+  /* resize: horizontal; - removed, using custom resize */
 }
 
 .hidden {
@@ -372,6 +382,59 @@
 .chat-messages::-webkit-scrollbar-thumb:hover,
 .chat-tools::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* Chat Examples Section */
+.chat-examples {
+  padding: 14px 16px 8px 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e1e5e9;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  align-items: flex-start;
+}
+
+.examples-loading, .examples-error {
+  color: #888;
+  font-size: 13px;
+  font-style: italic;
+  padding: 4px 0;
+}
+
+.example-prompt-btn {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+  border-radius: 16px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  margin: 0 4px 4px 0;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(25, 118, 210, 0.04);
+  outline: none;
+}
+
+.example-prompt-btn:hover, .example-prompt-btn:focus {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+}
+
+@media (max-width: 600px) {
+  .chat-examples {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 8px 4px 8px;
+  }
+  .example-prompt-btn {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+  }
 }
 
 /* Responsive adjustments */

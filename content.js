@@ -65,6 +65,46 @@ class DOMAgentChat {
     }
   }
 
+  async showExamplesSection() {
+    // Get tools and context
+    const [toolsResponse, resourcesResponse] = await Promise.all([
+      this.mcpServer.listTools(),
+      this.mcpServer.listResources()
+    ]);
+    const tools = toolsResponse.tools || [];
+    let context = '';
+    if (resourcesResponse.resources && resourcesResponse.resources.length > 0) {
+      for (const resource of resourcesResponse.resources) {
+        try {
+          const resourceData = await this.mcpServer.readResource(resource.uri);
+          context += `${resource.name}: ${resourceData.contents[0].text}\n`;
+        } catch (e) {}
+      }
+    }
+    // Request example prompts from LLM
+    const exampleSection = document.getElementById('chat-examples');
+    exampleSection.innerHTML = '<div class="examples-loading">Loading example prompts...</div>';
+    chrome.runtime.sendMessage({
+      type: 'GET_EXAMPLE_PROMPTS',
+      data: { tools, context }
+    }, (response) => {
+      if (response && response.prompts && Array.isArray(response.prompts)) {
+        exampleSection.innerHTML = response.prompts.map(prompt =>
+          `<button class="example-prompt-btn">${window.DOMPurify ? window.DOMPurify.sanitize(prompt) : prompt}</button>`
+        ).join('');
+        // Add click listeners
+        exampleSection.querySelectorAll('.example-prompt-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.getElementById('chat-input').value = btn.textContent;
+            document.getElementById('chat-input').focus();
+          });
+        });
+      } else {
+        exampleSection.innerHTML = '<div class="examples-error">Could not load example prompts.</div>';
+      }
+    });
+  }
+
   createChatUI() {
     // Create chat container
     this.chatContainer = document.createElement('div');
@@ -82,6 +122,7 @@ class DOMAgentChat {
           </button>
         </div>
       </div>
+      <div class="chat-examples" id="chat-examples"></div>
       <div class="chat-messages" id="chat-messages"></div>
       <div class="chat-tools hidden" id="chat-tools">
         <div class="tools-header">Available Tools:</div>
@@ -93,7 +134,6 @@ class DOMAgentChat {
       </div>
       <div class="chat-status" id="chat-status"></div>
     `;
-    
     document.body.appendChild(this.chatContainer);
     this.createDockPreview();
     this.applySettings();
@@ -160,15 +200,10 @@ class DOMAgentChat {
   }
 
   setupDragAndResize() {
-    const header = document.getElementById('chat-header');
-    
-    // ResizeObserver for floating window to detect CSS resize and apply optimization
+    // Only keep floating mode resizing (native CSS)
     this.resizeObserver = new ResizeObserver((entries) => {
       if (this.mode === 'floating' && !this.isDragging) {
-        // Add resizing class to disable transitions during resize
         this.chatContainer.classList.add('resizing');
-        
-        // Update size tracking
         const entry = entries[0];
         if (entry && entry.contentRect) {
           this.size = {
@@ -176,8 +211,6 @@ class DOMAgentChat {
             height: entry.contentRect.height
           };
         }
-        
-        // Debounce the removal of resizing class
         clearTimeout(this.resizeTimeout);
         this.resizeTimeout = setTimeout(() => {
           this.chatContainer.classList.remove('resizing');
@@ -185,150 +218,76 @@ class DOMAgentChat {
         }, 100);
       }
     });
-    
-    // Start observing the chat container
     this.resizeObserver.observe(this.chatContainer);
     
-    // Unified mouse down handler
+    // Remove all mouse event handlers for side panel resizing
+    // Only keep drag logic for floating mode
     document.addEventListener('mousedown', (e) => {
-      // Check for resize first (for side panels)
-      if ((this.mode === 'side-panel-right' || this.mode === 'side-panel-left') && 
-          this.isInResizeArea(e.clientX, e.clientY)) {
-        this.isResizing = true;
-        this.chatContainer.classList.add('resizing');
-        document.body.style.cursor = 'ew-resize';
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      
-      // Check for dragging (only on header and not on buttons)
       if (e.target.closest('#chat-header') && !e.target.closest('.chat-btn')) {
         this.isDragging = true;
         this.chatContainer.classList.add('dragging');
-        
         const rect = this.chatContainer.getBoundingClientRect();
         this.dragOffset.x = e.clientX - rect.left;
         this.dragOffset.y = e.clientY - rect.top;
-        
         e.preventDefault();
       }
     });
-
-    // Unified mouse move handler
     document.addEventListener('mousemove', (e) => {
-      // Handle resizing
-      if (this.isResizing) {
-        let newWidth;
-        if (this.mode === 'side-panel-right') {
-          newWidth = window.innerWidth - e.clientX;
-        } else if (this.mode === 'side-panel-left') {
-          newWidth = e.clientX;
-        }
-        
-        const clampedWidth = Math.max(300, Math.min(newWidth, window.innerWidth * 0.8));
-        this.chatContainer.style.width = clampedWidth + 'px';
-        this.size = { ...this.size, width: clampedWidth };
-        
-        // Update website layout during resize
-        this.adjustWebsiteLayout();
-        return;
-      }
-      
-      // Handle dragging
       if (this.isDragging) {
         const x = e.clientX - this.dragOffset.x;
         const y = e.clientY - this.dragOffset.y;
-        
-        // Check for dock zones
         const dockZone = this.getDockZone(e.clientX, e.clientY);
-        
         if (dockZone) {
           this.showDockPreview(dockZone);
         } else {
           this.hideDockPreview();
-          
-          // Keep window within viewport for floating mode
           const maxX = window.innerWidth - this.chatContainer.offsetWidth;
           const maxY = window.innerHeight - this.chatContainer.offsetHeight;
-          
           const clampedX = Math.max(0, Math.min(x, maxX));
           const clampedY = Math.max(0, Math.min(y, maxY));
-          
-          // Temporarily position for floating mode
           this.chatContainer.style.left = clampedX + 'px';
           this.chatContainer.style.top = clampedY + 'px';
           this.chatContainer.style.right = 'auto';
-          
           this.position = { x: clampedX, y: clampedY };
         }
         return;
       }
-      
-      // Handle cursor changes for resize areas when not dragging/resizing
-      if (this.mode === 'side-panel-right' || this.mode === 'side-panel-left') {
-        if (this.isInResizeArea(e.clientX, e.clientY)) {
-          document.body.style.cursor = 'ew-resize';
-        } else {
-          document.body.style.cursor = '';
-        }
-      }
     });
-
-    // Unified mouse up handler
     document.addEventListener('mouseup', (e) => {
-      // Handle resize end
-      if (this.isResizing) {
-        this.isResizing = false;
-        this.chatContainer.classList.remove('resizing');
-        document.body.style.cursor = '';
-        this.saveSettings();
-        
-        // Final layout adjustment after resize
-        this.adjustWebsiteLayout();
-        return;
-      }
-      
-      // Handle drag end
       if (this.isDragging) {
         this.isDragging = false;
         this.chatContainer.classList.remove('dragging');
-        
-        // Check if we should dock
         const dockZone = this.getDockZone(e.clientX, e.clientY);
-        
         if (dockZone) {
           this.dockToSide(dockZone);
         } else {
-          // Set to floating mode
           this.setMode('floating');
         }
-        
         this.hideDockPreview();
         this.saveSettings();
       }
     });
   }
 
-  isInResizeArea(clientX, clientY) {
-    const rect = this.chatContainer.getBoundingClientRect();
-    const resizeHandleWidth = 8; // Width of the resize area
+  isInResizeArea(clientX, clientY, rect = null) {
+    // Use provided rect or get fresh one (avoid multiple calls during resize)
+    const containerRect = rect || this.chatContainer.getBoundingClientRect();
+    
+    let inArea = false;
     
     if (this.mode === 'side-panel-right') {
-      // Resize handle is on the left edge of the right panel
-      return clientX >= rect.left - resizeHandleWidth && 
-             clientX <= rect.left + resizeHandleWidth &&
-             clientY >= rect.top && 
-             clientY <= rect.bottom;
+      inArea = clientX >= containerRect.left - 8 && 
+               clientX <= containerRect.left + 8 &&
+               clientY >= containerRect.top && 
+               clientY <= containerRect.bottom;
     } else if (this.mode === 'side-panel-left') {
-      // Resize handle is on the right edge of the left panel
-      return clientX >= rect.right - resizeHandleWidth && 
-             clientX <= rect.right + resizeHandleWidth &&
-             clientY >= rect.top && 
-             clientY <= rect.bottom;
+      inArea = clientX >= containerRect.right - 8 && 
+               clientX <= containerRect.right + 8 &&
+               clientY >= containerRect.top && 
+               clientY <= containerRect.bottom;
     }
     
-    return false;
+    return inArea;
   }
 
   getDockZone(clientX, clientY) {
@@ -502,6 +461,7 @@ class DOMAgentChat {
     this.chatContainer.classList.remove('hidden');
     this.isVisible = true;
     this.updateToolsList();
+    this.showExamplesSection();
     
     // Adjust website layout when showing
     this.adjustWebsiteLayout();
@@ -555,7 +515,13 @@ class DOMAgentChat {
     messageElement.className = `chat-message ${sender}`;
     const contentElement = document.createElement('div');
     contentElement.className = 'message-content';
-    contentElement.textContent = text;
+    // Markdown rendering with sanitization
+    if (window.marked && window.DOMPurify) {
+      const html = window.marked.parse(text || '');
+      contentElement.innerHTML = window.DOMPurify.sanitize(html);
+    } else {
+      contentElement.textContent = text;
+    }
     messageElement.appendChild(contentElement);
     
     const messagesContainer = document.getElementById('chat-messages');

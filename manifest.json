@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["mcp-server.js", "content.js"],
+      "js": ["marked.min.js", "purify.min.js", "mcp-server.js", "content.js"],
       "css": ["chat.css"]
     }
   ],

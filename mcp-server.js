@@ -29,9 +29,36 @@ class DOMInProcessMCPServer {
       tools: Array.from(this.tools.values()).map(tool => ({
         name: tool.name,
         description: tool.description,
-        inputSchema: tool.schema
+        inputSchema: tool.schema,
+        params: this.flattenSchemaParams(tool.schema)
       }))
     };
+  }
+
+  // Recursively flatten schema properties for UI/LLM
+  flattenSchemaParams(schema, parent = "") {
+    let params = [];
+    if (schema.type === "object" && schema.properties) {
+      for (const [key, prop] of Object.entries(schema.properties)) {
+        const fullName = parent ? `${parent}.${key}` : key;
+        if (prop.type === "object" || prop.type === "array") {
+          params = params.concat(this.flattenSchemaParams(prop, fullName));
+        } else {
+          params.push({
+            name: fullName,
+            type: prop.type,
+            description: prop.description || "",
+            required: schema.required && schema.required.includes(key),
+            enum: prop.enum,
+            example: prop.example
+          });
+        }
+      }
+    } else if (schema.type === "array" && schema.items) {
+      // For arrays, show the item structure
+      params = params.concat(this.flattenSchemaParams(schema.items, parent ? `${parent}[]` : "[]"));
+    }
+    return params;
   }
 
   async callTool(name, arguments_) {
