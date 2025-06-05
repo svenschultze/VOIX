@@ -530,6 +530,41 @@ class DOMAgentChat {
     toolsDiv.classList.toggle('hidden');
   }
 
+  sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    this.addMessage('user', message);
+    input.value = '';
+    
+    // Delegate everything to MCP server
+    this.mcpServer.sendMessage(message)
+      .then(response => {
+        this.addMessage('assistant', response);
+      })
+      .catch(error => {
+        console.error('Error sending message:', error);
+        this.addMessage('assistant', 'Sorry, there was an error processing your request.');
+      });
+  }
+
+  addMessage(sender, text) {
+    const messageElement = document.createElement('div');
+    messageElement.className = `chat-message ${sender}`;
+    const contentElement = document.createElement('div');
+    contentElement.className = 'message-content';
+    contentElement.textContent = text;
+    messageElement.appendChild(contentElement);
+    
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.appendChild(messageElement);
+    
+    // Scroll to bottom of messages
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
   updateToolsList() {
     this.mcpServer.listTools().then(response => {
       const tools = response.tools;
@@ -546,81 +581,6 @@ class DOMAgentChat {
     }).catch(error => {
       console.error('Error updating tools list:', error);
     });
-  }
-
-  sendMessage() {
-    const input = document.getElementById('chat-input');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    this.addMessage('user', message);
-    input.value = '';
-    
-    // Send message to server
-    this.mcpServer.sendMessage(message)
-      .then(response => {
-        if (response.type === 'tool_call') {
-          // Execute the tool call
-          this.executeToolCall(response.tool_name, response.arguments);
-        } else {
-          this.addMessage('assistant', response.content || response);
-        }
-      })
-      .catch(error => {
-        console.error('Error sending message:', error);
-        this.addMessage('assistant', 'Sorry, there was an error processing your request.');
-      });
-  }
-
-  async executeToolCall(toolName, args) {
-    try {
-      this.addMessage('system', `🔧 Executing tool: ${toolName}`);
-      
-      // Call the tool via MCP server using standard MCP method
-      const result = await this.mcpServer.callTool(toolName, args);
-      
-      if (!result.isError) {
-        // Send the tool result back to the LLM for a response
-        const toolResultText = result.content[0]?.text || 'Tool executed successfully';
-        
-        const followUpPayload = {
-          messages: [
-            { role: 'assistant', content: `Called tool ${toolName}` },
-            { role: 'tool', tool_call_id: 'tool_call_1', content: toolResultText }
-          ],
-          tools: (await this.mcpServer.listTools()).tools,
-          context: await this.mcpServer.getContext()
-        };
-        
-        // Get LLM response about the tool execution
-        chrome.runtime.sendMessage({ type: 'LLM_REQUEST', data: followUpPayload }, (response) => {
-          if (response && response.type === 'message') {
-            this.addMessage('assistant', response.content);
-          } else {
-            this.addMessage('assistant', `Tool "${toolName}" executed successfully.`);
-          }
-        });
-      } else {
-        this.addMessage('assistant', `Tool execution failed: ${result.content[0]?.text || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Error executing tool:', error);
-      this.addMessage('assistant', `Error executing tool "${toolName}": ${error.message}`);
-    }
-  }
-
-  addMessage(sender, text) {
-    const messageElement = document.createElement('div');
-    messageElement.className = `chat-message ${sender}`;
-    const contentElement = document.createElement('div');
-    contentElement.className = 'message-content';
-    contentElement.textContent = text;
-    messageElement.appendChild(contentElement);
-    const messagesContainer = document.getElementById('chat-messages');
-    messagesContainer.appendChild(messageElement);
-    // Scroll to bottom of messages
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
   scanAndShowTools() {

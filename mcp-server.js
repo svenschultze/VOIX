@@ -124,6 +124,11 @@ class DOMInProcessMCPServer {
       this.mcpInitialized = true;
     }
 
+    // Initialize conversation if not exists
+    if (!this.conversation) {
+      this.conversation = [];
+    }
+
     // Get tools and resources using MCP standard methods
     const toolsResponse = await this.listTools();
     const resourcesResponse = await this.listResources();
@@ -141,36 +146,109 @@ class DOMInProcessMCPServer {
       }
     }
     
-    // Prepare message payload in MCP-compliant format
+    // Add user message to conversation
+    this.conversation.push({ role: 'user', content: message });
+    
+    // Prepare message payload
     const payload = {
-      messages: [{ role: 'user', content: message }],
+      messages: [...this.conversation], // Send full conversation history
       tools: toolsResponse.tools,
       context: context || this.getPageContext()
     };
     
-    // Send message to background script and await response
+    // Get initial response from LLM
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ type: 'LLM_REQUEST', data: payload }, (response) => {
+      chrome.runtime.sendMessage({ type: 'LLM_REQUEST', data: payload }, async (response) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
-        } else if (response && response.type === 'tool_call') {
-          resolve({
-            type: 'tool_call',
-            tool_name: response.tool_name,
-            arguments: response.arguments
-          });
-        } else if (response && response.type === 'message') {
-          resolve({
-            type: 'message',
-            content: response.content
-          });
-        } else if (response && response.error) {
+          return;
+        }
+        
+        if (response?.error) {
           reject(new Error(response.error));
+          return;
+        }
+
+        // Handle direct OpenAI message response
+        if (response?.role === 'assistant') {
+          const assistantMessage = response;
+          
+          // Add assistant message to conversation
+          this.conversation.push(assistantMessage);
+          
+          // Check if there are tool calls
+          if (assistantMessage.tool_calls && assistantMessage.tool_calls.length > 0) {
+            try {
+              // Execute all tool calls
+              const toolResults = await this.executeAllToolCalls(assistantMessage.tool_calls);
+              
+              // Add tool result messages to conversation
+              for (const result of toolResults) {
+                this.conversation.push({
+                  role: 'tool',
+                  tool_call_id: result.tool_call_id,
+                  content: result.content
+                });
+              }
+              
+              // Get final response from LLM after tool execution
+              const followUpPayload = {
+                messages: [...this.conversation],
+                tools: toolsResponse.tools,
+                context: context || this.getPageContext()
+              };
+              
+              chrome.runtime.sendMessage({ type: 'LLM_REQUEST', data: followUpPayload }, (finalResponse) => {
+                if (finalResponse?.role === 'assistant') {
+                  this.conversation.push(finalResponse);
+                  resolve(finalResponse.content || 'Tools executed successfully.');
+                } else {
+                  resolve('Tools executed successfully.');
+                }
+              });
+            } catch (toolError) {
+              resolve(`Error executing tools: ${toolError.message}`);
+            }
+          } else {
+            // No tool calls, return the assistant's message
+            resolve(assistantMessage.content || 'No response received.');
+          }
         } else {
-          reject(new Error('No response from background script'));
+          // Handle legacy responses for backward compatibility
+          if (response?.type === 'message') {
+            resolve(response.content);
+          } else {
+            reject(new Error('Unexpected response format'));
+          }
         }
       });
     });
+  }
+
+  async executeAllToolCalls(toolCalls) {
+    const results = [];
+    
+    for (const toolCall of toolCalls) {
+      try {
+        console.log(`🔧 Executing tool: ${toolCall.function.name}`);
+        
+        const args = JSON.parse(toolCall.function.arguments);
+        const result = await this.callTool(toolCall.function.name, args);
+        
+        results.push({
+          tool_call_id: toolCall.id,
+          content: result.content[0].text
+        });
+      } catch (error) {
+        console.error(`Error executing tool ${toolCall.function.name}:`, error);
+        results.push({
+          tool_call_id: toolCall.id,
+          content: JSON.stringify({ error: error.message })
+        });
+      }
+    }
+    
+    return results;
   }
 
   getPageContext() {

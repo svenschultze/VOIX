@@ -112,11 +112,29 @@ async function handleLLMRequest(data) {
     // Prepare the system message with available tools and context
     const systemMessage = createSystemMessage(tools, context);
     
-    // Prepare messages for the API
-    const apiMessages = [
-      { role: 'system', content: systemMessage },
-      ...messages.slice(-10) // Keep last 10 messages to manage token limit
-    ];
+    // Prepare messages for the API - handle existing conversation history
+    let apiMessages = [];
+    
+    // Add system message if not already present
+    if (messages.length === 0 || messages[0].role !== 'system') {
+      apiMessages.push({ role: 'system', content: systemMessage });
+    }
+    
+    // Add conversation messages (keep last 20 to manage token limit)
+    apiMessages = apiMessages.concat(messages.slice(-20));
+
+    const requestBody = {
+      model: settings.model,
+      messages: apiMessages,
+      max_tokens: parseInt(settings.maxTokens) || 1000,
+      temperature: parseFloat(settings.temperature) || 0.7
+    };
+
+    // Only add tools if available
+    if (tools && tools.length > 0) {
+      requestBody.tools = formatToolsForAPI(tools);
+      requestBody.tool_choice = 'auto';
+    }
 
     const response = await fetch(`${settings.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -124,14 +142,7 @@ async function handleLLMRequest(data) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${settings.apiKey}`
       },
-      body: JSON.stringify({
-        model: settings.model,
-        messages: apiMessages,
-        max_tokens: parseInt(settings.maxTokens) || 1000,
-        temperature: parseFloat(settings.temperature) || 0.7,
-        tools: tools.length > 0 ? formatToolsForAPI(tools) : undefined,
-        tool_choice: tools.length > 0 ? 'auto' : undefined
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
@@ -140,22 +151,14 @@ async function handleLLMRequest(data) {
     }
 
     const result = await response.json();
+    const assistantMessage = result.choices?.[0]?.message;
     
-    // Handle tool calls
-    if (result.choices?.[0]?.message?.tool_calls) {
-      const toolCall = result.choices[0].message.tool_calls[0];
-      return {
-        type: 'tool_call',
-        tool_name: toolCall.function.name,
-        arguments: JSON.parse(toolCall.function.arguments)
-      };
+    if (!assistantMessage) {
+      throw new Error('No response message received from API');
     }
-    
-    // Handle regular text response
-    return {
-      type: 'message',
-      content: result.choices?.[0]?.message?.content || 'No response received from the AI.'
-    };
+
+    // Return the raw OpenAI message directly
+    return assistantMessage;
     
   } catch (error) {
     console.error('LLM request error:', error);
