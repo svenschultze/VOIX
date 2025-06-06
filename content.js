@@ -237,7 +237,7 @@ class VOIXChat {
 
     // Tool calls
     document.addEventListener('call', (event) => {
-      this.addMessage('system', `🔧 Tool executed: ${event.detail.name}`);
+      this.addMessage('system', `🔧 Tool executed: ${event.target.attributes.name.value}`);
     });
 
     // Handle messages from popup

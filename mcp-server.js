@@ -17,7 +17,7 @@ class DOMInProcessMCPServer {
       protocolVersion: "2024-11-05",
       capabilities: this.capabilities,
       serverInfo: {
-        name: "dom-mcp-server",
+        name: "voix-mcp-server",
         version: "1.0.0"
       }
     };
@@ -61,7 +61,7 @@ class DOMInProcessMCPServer {
     return params;
   }
 
-  async callTool(name, arguments_) {
+  callTool(name, arguments_) {
     this.parseDOMTools();
     
     const tool = this.tools.get(name);
@@ -69,48 +69,20 @@ class DOMInProcessMCPServer {
       throw new Error(`Tool ${name} not found`);
     }
 
-    // Use your existing DOM event system but return MCP-compliant response
-    return new Promise((resolve, reject) => {
-      const responseHandler = (event) => {
-        tool.element.removeEventListener('response', responseHandler);
-        
-        if (event.detail?.error) {
-          reject(new Error(event.detail.error));
-        } else {
-          // MCP-compliant tool response
-          resolve({
-            content: [
-              {
-                type: "text",
-                text: JSON.stringify(event.detail || { success: true })
-              }
-            ],
-            isError: false
-          });
-        }
-      };
-
-      tool.element.addEventListener('response', responseHandler);
-      
-      console.log("calling tool:", name, "with arguments:", arguments_);
-      // Dispatch MCP-style call event
-      const callEvent = new CustomEvent('call', {
-        detail: arguments_,
-        bubbles: true,
-        cancelable: true
-      });
-
-      tool.element.dispatchEvent(callEvent);
-      
-      // Timeout
-      setTimeout(() => {
-        tool.element.removeEventListener('response', responseHandler);
-        resolve({
-          content: [{ type: "text", text: "Tool executed (no response)" }],
-          isError: false
-        });
-      }, 5000);
+    console.log("calling tool:", name, "with arguments:", arguments_);
+    // Dispatch MCP-style call event
+    const callEvent = new CustomEvent('call', {
+      detail: arguments_,
+      name: name,
+      bubbles: true,
+      cancelable: true
     });
+
+    tool.element.dispatchEvent(callEvent);
+
+    return {
+      detail: callEvent.detail,
+    }
   }
 
   async listResources() {
@@ -208,6 +180,7 @@ class DOMInProcessMCPServer {
             try {
               // Execute all tool calls
               const toolResults = await this.executeAllToolCalls(assistantMessage.tool_calls);
+              console.log("Tool results:", toolResults);
               
               // Add tool result messages to conversation
               for (const result of toolResults) {
@@ -263,11 +236,11 @@ class DOMInProcessMCPServer {
         console.log(`🔧 Executing tool: ${toolCall.function.name}`);
         
         const args = JSON.parse(toolCall.function.arguments);
-        const result = await this.callTool(toolCall.function.name, args);
+        const result = this.callTool(toolCall.function.name, args);
         
         results.push({
           tool_call_id: toolCall.id,
-          content: result.content[0].text
+          content: JSON.stringify(result)
         });
       } catch (error) {
         console.error(`Error executing tool ${toolCall.function.name}:`, error);
