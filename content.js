@@ -17,6 +17,8 @@ class VOIXChat {
     this.isResizing = false;
     this.dockPreview = null;
     this.originalBodyStyle = null; // Store original body styles
+    this.toolsRefreshInterval = null; // For periodic tools overview refresh
+    this.lastToolsSnapshot = null; // Store last tools/resources state for change detection
     this.init();
   }
 
@@ -26,6 +28,7 @@ class VOIXChat {
     this.setupEventListeners();
     this.setupKeyboardShortcut();
     this.setupDragAndResize();
+    this.startToolsRefresh(); // Start periodic refresh
     
     // Signal that the content script is ready
     console.log('VOIX Chat initialized');
@@ -131,6 +134,11 @@ class VOIXChat {
       <div class="chat-header" id="chat-header">
         <span>VOIX</span>
         <div class="chat-controls">
+          <button id="chat-reset-btn" class="chat-btn reset" title="Reset Chat">
+            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13,3A9,9 0 0,0 4,12H1L4.89,15.89L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z" fill="currentColor"/>
+            </svg>
+          </button>
           <button id="chat-close-btn" class="chat-btn close" title="Close">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -138,25 +146,14 @@ class VOIXChat {
           </button>
         </div>
       </div>
-      <div class="chat-tools-overview" id="chat-tools-overview">
-        <div class="tools-overview-header">
-          <span class="tools-overview-title">🔧 Available Tools</span>
-          <button id="tools-overview-toggle" class="tools-overview-toggle" title="Toggle tools overview">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 14L12 9L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="tools-overview-content" id="tools-overview-content">
-          <div class="tools-overview-loading">Scanning for tools...</div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-tools-overview" id="chat-tools-overview">
+          <div class="tools-overview-content" id="tools-overview-content">
+            <div class="tools-overview-loading">Scanning for tools...</div>
+          </div>
         </div>
       </div>
-      <div class="chat-messages" id="chat-messages"></div>
       <div class="chat-examples" id="chat-examples"></div>
-      <div class="chat-tools hidden" id="chat-tools">
-        <div class="tools-header">Available Tools:</div>
-        <div class="tools-list" id="tools-list"></div>
-      </div>
       <div class="chat-input-container">
         <button id="think-toggle-btn" class="think-toggle-btn" title="Toggle thinking mode">
           <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -210,32 +207,33 @@ class VOIXChat {
       thinkToggleBtn.title = this.thinkModeEnabled ? 'Thinking mode ON' : 'Thinking mode OFF';
     });
 
-    // Tools overview toggle functionality
-    const toolsOverviewToggle = document.getElementById('tools-overview-toggle');
-    const toolsOverviewHeader = document.querySelector('.tools-overview-header');
-    const toolsOverviewContent = document.getElementById('tools-overview-content');
-    
-    if (toolsOverviewToggle && toolsOverviewHeader && toolsOverviewContent) {
-      // Toggle functionality for both button and header
-      const toggleOverview = () => {
-        const isCollapsed = toolsOverviewContent.classList.contains('collapsed');
-        
-        toolsOverviewContent.classList.toggle('collapsed');
-        toolsOverviewToggle.classList.toggle('collapsed', !isCollapsed);
-        
-        // Rotate the arrow icon
-        const svg = toolsOverviewToggle.querySelector('svg');
-        if (svg) {
-          svg.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)';
-        }
-      };
-      
-      toolsOverviewToggle.addEventListener('click', toggleOverview);
-      toolsOverviewHeader.addEventListener('click', toggleOverview);
-    }
+    // Close button
+    document.getElementById('chat-close-btn').addEventListener('click', () => {
+      this.hide();
+    });
 
-    // Only close button
-    document.getElementById('chat-close-btn').addEventListener('click', () => this.hide());
+    // Reset button
+    document.getElementById('chat-reset-btn').addEventListener('click', () => {
+      const messagesContainer = document.getElementById('chat-messages');
+      
+      // Get the tools overview element to preserve it
+      const toolsOverview = document.getElementById('chat-tools-overview');
+      
+      // Clear only the chat messages, not the entire container
+      const messageElements = messagesContainer.querySelectorAll('.chat-message');
+      messageElements.forEach(element => element.remove());
+      
+      // Clear the messages array
+      this.messages = [];
+      
+      // Add welcome message back
+      const welcomeMessage = this.createMessageElement('assistant', 
+        'Hello! How can I help you today? I can see the tools and resources available on this page - just ask me to interact with them or help with any task.');
+      messagesContainer.appendChild(welcomeMessage);
+      
+      // Update the tools overview to refresh it
+      this.updateToolsOverview();
+    });
 
     // Tool calls
     document.addEventListener('call', (event) => {
@@ -533,6 +531,9 @@ class VOIXChat {
     this.updateToolsList();
     this.showExamplesSection();
     
+    // Start/resume tools refresh when showing
+    this.startToolsRefresh();
+    
     // Adjust website layout when showing
     this.adjustWebsiteLayout();
     
@@ -546,6 +547,9 @@ class VOIXChat {
   hide() {
     this.chatContainer.classList.add('hidden');
     this.isVisible = false;
+    
+    // Stop tools refresh when hiding to save resources
+    this.stopToolsRefresh();
     
     // Restore website layout when hiding
     this.restoreWebsiteLayout();
@@ -636,6 +640,16 @@ class VOIXChat {
       
       const tools = toolsResponse.tools || [];
       const resources = resourcesResponse.resources || [];
+      
+      // Check for major changes and refresh examples if needed
+      const hasChanged = this.detectMajorChanges(tools, resources);
+      if (hasChanged) {
+        console.log('Major changes detected in tools/resources, refreshing example prompts');
+        this.showExamplesSection(); // Refresh example prompts
+      }
+      
+      // Store current state for future comparisons
+      this.lastToolsSnapshot = this.createToolsSnapshot(tools, resources);
       
       if (tools.length === 0 && resources.length === 0) {
         overviewContent.innerHTML = `
@@ -785,6 +799,148 @@ class VOIXChat {
       generic: '📄'
     };
     return icons[type] || '📄';
+  }
+
+  /**
+   * Create a snapshot of current tools and resources for change detection
+   */
+  createToolsSnapshot(tools, resources) {
+    return {
+      toolNames: tools.map(t => t.name).sort(),
+      toolCount: tools.length,
+      resourceNames: resources.map(r => r.name || r.uri).sort(),
+      resourceCount: resources.length,
+      timestamp: Date.now()
+    };
+  }
+
+  /**
+   * Detect if there are major changes in tools/resources that warrant refreshing examples
+   */
+  detectMajorChanges(tools, resources) {
+    if (!this.lastToolsSnapshot) {
+      return false; // First time, no comparison needed
+    }
+
+    const currentSnapshot = this.createToolsSnapshot(tools, resources);
+    const lastSnapshot = this.lastToolsSnapshot;
+
+    // Check for significant changes
+    const toolCountChanged = Math.abs(currentSnapshot.toolCount - lastSnapshot.toolCount) >= 2;
+    const resourceCountChanged = Math.abs(currentSnapshot.resourceCount - lastSnapshot.resourceCount) >= 3;
+    
+    // Check for tool name changes (new tools or renamed tools)
+    const toolNamesChanged = this.arraysSignificantlyDifferent(
+      currentSnapshot.toolNames, 
+      lastSnapshot.toolNames,
+      0.3 // 30% change threshold
+    );
+    
+    // Check for resource name changes
+    const resourceNamesChanged = this.arraysSignificantlyDifferent(
+      currentSnapshot.resourceNames, 
+      lastSnapshot.resourceNames,
+      0.4 // 40% change threshold
+    );
+
+    // Consider it a major change if any of these conditions are met
+    const majorChange = toolCountChanged || resourceCountChanged || toolNamesChanged || resourceNamesChanged;
+
+    if (majorChange) {
+      console.log('Major change detected:', {
+        toolCountChanged,
+        resourceCountChanged,
+        toolNamesChanged,
+        resourceNamesChanged,
+        oldToolCount: lastSnapshot.toolCount,
+        newToolCount: currentSnapshot.toolCount,
+        oldResourceCount: lastSnapshot.resourceCount,
+        newResourceCount: currentSnapshot.resourceCount
+      });
+    }
+
+    return majorChange;
+  }
+
+  /**
+   * Check if two arrays are significantly different based on a threshold
+   */
+  arraysSignificantlyDifferent(arr1, arr2, threshold = 0.3) {
+    if (arr1.length === 0 && arr2.length === 0) return false;
+    if (arr1.length === 0 || arr2.length === 0) return true;
+
+    // Calculate intersection
+    const set1 = new Set(arr1);
+    const set2 = new Set(arr2);
+    const intersection = new Set([...set1].filter(x => set2.has(x)));
+    
+    // Calculate similarity ratio
+    const totalUnique = new Set([...arr1, ...arr2]).size;
+    const similarity = intersection.size / totalUnique;
+    
+    // Return true if difference exceeds threshold
+    return (1 - similarity) > threshold;
+  }
+
+  resetChat() {
+    // Clear chat messages
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.innerHTML = '';
+    
+    // Optionally, reset other states or UI elements as needed
+    this.messages = [];
+    this.position = { x: 20, y: 20 };
+    this.size = { width: 400, height: 500 };
+    this.mode = 'side-panel-right';
+    this.isVisible = false;
+    this.chatContainer.className = `voix-chat-container hidden ${this.mode}`;
+    
+    // Reset settings in storage
+    chrome.storage.sync.set({
+      chatMode: this.mode,
+      chatPosition: this.position,
+      chatSize: this.size
+    });
+    
+    console.log('Chat reset to initial state');
+  }
+
+  createMessageElement(sender, text) {
+    const messageElement = document.createElement('div');
+    messageElement.className = `chat-message ${sender}`;
+    const contentElement = document.createElement('div');
+    contentElement.className = 'message-content';
+    // Markdown rendering with sanitization
+    if (window.marked && window.DOMPurify) {
+      const html = window.marked.parse(text || '');
+      contentElement.innerHTML = window.DOMPurify.sanitize(html);
+    } else {
+      contentElement.textContent = text;
+    }
+    messageElement.appendChild(contentElement);
+    
+    return messageElement;
+  }
+
+  startToolsRefresh() {
+    // Clear any existing interval
+    if (this.toolsRefreshInterval) {
+      clearInterval(this.toolsRefreshInterval);
+    }
+    
+    // Set up periodic refresh every 5 seconds
+    this.toolsRefreshInterval = setInterval(() => {
+      if (this.isVisible) {
+        this.updateToolsOverview();
+      }
+    }, 5000);
+  }
+
+  stopToolsRefresh() {
+    if (this.toolsRefreshInterval) {
+      clearInterval(this.toolsRefreshInterval);
+      this.toolsRefreshInterval = null;
+    }
   }
 }
 

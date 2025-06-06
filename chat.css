@@ -452,14 +452,22 @@
 }
 
 .tools-overview-content {
-  max-height: 300px;
-  overflow-y: auto;
-  transition: all 0.3s ease;
+  /* Remove max-height, overflow, and scrolling styles */
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 .tools-overview-content.collapsed {
-  max-height: 0;
-  overflow: hidden;
+  /* Remove collapsed styles */
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.tools-overview-content::-webkit-scrollbar,
+.tools-overview-content::-webkit-scrollbar-track,
+.tools-overview-content::-webkit-scrollbar-thumb,
+.tools-overview-content::-webkit-scrollbar-thumb:hover {
+  display: none !important;
 }
 
 .tools-overview-loading {
