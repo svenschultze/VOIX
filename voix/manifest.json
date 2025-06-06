@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["marked.min.js", "purify.min.js", "mcp-server.js", "content.js"],
+      "js": ["dependencies/marked.min.js", "dependencies/purify.min.js", "mcp-server.js", "content.js"],
       "css": ["chat.css"]
     }
   ],
@@ -27,8 +27,8 @@
   },
   "options_page": "options.html",
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "16": "assets/voix_icon_16px.png",
+    "48": "assets/voix_icon_48px.png",
+    "128": "assets/voix_icon_128px.png"
   }
 }
