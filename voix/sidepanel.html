@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOIX - AI Assistant</title>
+  <link rel="stylesheet" href="assets/chat.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--voix-background);
+      overflow: hidden;
+    }
+    
+    /* Override the chat container for side panel mode */
+    .voix-chat-container {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      left: auto !important;
+      width: 100% !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    /* Hide the header since we're in a side panel */
+    .chat-header {
+      display: none !important;
+    }
+    
+    /* Ensure the messages container uses the full space */
+    .chat-messages {
+      flex: 1;
+      height: auto;
+    }
+    
+    /* Make sure drag handles are hidden in side panel */
+    .voix-chat-container::before,
+    .voix-chat-container::after {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="voix-chat-container" id="voix-chat">
+    <!-- Chat header hidden in side panel mode -->
+    <div class="chat-header" id="chat-header" style="display: none;">
+      <span>VOIX</span>
+      <div class="chat-controls">
+        <button id="chat-reset-btn" class="chat-btn reset" title="Reset Chat">
+          <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13,3A9,9 0 0,0 4,12H1L4.89,15.89L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <button id="chat-close-btn" class="chat-btn close" title="Close">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Main chat messages container -->
+    <div class="chat-messages" id="chat-messages">
+      <!-- Tools Overview Section -->
+      <div class="chat-tools-overview" id="chat-tools-overview">
+        <div class="tools-overview-content" id="tools-overview-content">
+          <div class="tools-overview-loading">Scanning for tools...</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Example Prompts -->
+    <div class="chat-examples" id="chat-examples">
+      <div class="examples-loading">Loading example prompts...</div>
+    </div>
+    
+    <!-- Input Container -->
+    <div class="chat-input-container">
+      <button id="think-toggle-btn" class="think-toggle-btn" title="Toggle thinking mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8.13 2 5 5.13 5 9C5 11.38 6.19 13.47 8 14.74V17C8 17.55 8.45 18 9 18H15C15.55 18 16 17.55 16 17V14.74C17.81 13.47 19 11.38 19 9C19 5.13 15.87 2 12 2M14 13.58V16H13V11.41L14.71 9.71C15.1 9.32 15.1 8.68 14.71 8.29C14.32 7.9 13.68 7.9 13.29 8.29L12 9.59L10.71 8.29C10.32 7.9 9.68 7.9 9.29 8.29C8.9 8.68 8.9 9.32 9.29 9.71L11 11.41V16H10V13.58C8.23 12.81 7 11.05 7 9C7 6.24 9.24 4 12 4S17 6.24 17 9C17 11.05 15.77 12.81 14 13.58M9 20H15V21C15 21.55 14.55 22 14 22H10C9.45 22 9 21.55 9 21V20Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <input type="text" id="chat-input" placeholder="Ask me to help with this page..." />
+      <button id="chat-send-btn" class="chat-send-btn">Send</button>
+    </div>
+    
+    <!-- Status bar -->
+    <div class="chat-status" id="chat-status"></div>
+    
+    <!-- Hidden tools section for tab switching -->
+    <div class="chat-tools hidden" id="chat-tools">
+      <div class="tools-header">🔧 Available Tools</div>
+      <div class="tools-list" id="tools-list">
+        <div class="no-tools">Loading tools...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="dependencies/marked.min.js"></script>
+  <script src="dependencies/purify.min.js"></script>
+  <script src="mcp-server.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
