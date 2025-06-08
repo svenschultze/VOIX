@@ -1,4 +1,34 @@
 // MCP-compatible MCP Server injected into every page
+
+
+// Dedicated function to simplify HTML by whitelisting content tags
+function simplifyHtmlElement(element) {
+  // Whitelist of content tags to keep
+  const whitelist = [
+    'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'table', 'tr', 'td', 'th',
+    'a', 'b', 'strong', 'i', 'em', 'blockquote',
+    'pre', 'code', 'span', 'div', 'br', 'hr', 'table', 'thead', 'tbody', 'tfoot',
+    'caption', 'section', 'article', 'aside', 'header', 'footer', 'nav', 'main', 'figure', 'figcaption', 'details', 'summary', 'dl', 'dt', 'dd', 'math', 'b', 'em', 'strong', 'mark', 'small', 'sub', 'sup', 'time', 'u', 's', 'del', 'ins', 'kbd', 'var', 'samp', 'cite', 'q', 'dfn', 'abbr', 'address'
+  ];
+  // Remove all elements not in the whitelist
+  element.querySelectorAll('*').forEach(el => {
+    if (!whitelist.includes(el.tagName.toLowerCase())) {
+      el.remove();
+    }
+  });
+  // Remove all attributes from all elements
+  element.querySelectorAll('*').forEach(el => {
+    while (el.attributes.length > 0) {
+      el.removeAttribute(el.attributes[0].name);
+    }
+  });
+
+  return element;
+}
+
+
+console.log('Injecting MCP Server into page');
 (function() {
   if (window.voixMCPServer) return;
 
@@ -157,6 +187,37 @@
         const tools = this.scanForTools();
         const resources = this.scanForResources();
         const context = this.scanForContext();
+        // Fallback: if no tools and no context/resources, add current_url and html as resources
+        if (
+          tools.length === 0 &&
+          resources.length === 0 &&
+          context.length === 0
+        ) {
+          // Use visible text only for fallback html resource, limited to 10,000 words
+          let cleanedText = '';
+          if (document.body) {
+            cleanedText = document.body.innerText;
+            // Limit to 10,000 words
+            const words = cleanedText.split(/\s+/);
+            if (words.length > 10000) {
+              cleanedText = words.slice(0, 10000).join(' ');
+            }
+          }
+          resources.push(
+            {
+              name: 'current_url',
+              description: 'The current URL of the website',
+              content: window.location.href
+            },
+            {
+              name: 'html',
+              description: 'The visible text content of the page body (up to 10,000 words)',
+              content: cleanedText
+            }
+          );
+        }
+        // combine resources and context into a single array to context
+        context.push(...resources);
         return { success: true, tools, context, resources };
       } catch (error) {
         return { success: false, error: error.message };
@@ -349,4 +410,16 @@
   }
 
   window.voixMCPServer = new MCPServer();
+
+  // Add SPA navigation support: listen for popstate and hashchange events
+  window.addEventListener('popstate', () => {
+    chrome.runtime.sendMessage({ type: 'PAGE_DATA_UPDATED' });
+  });
+  window.addEventListener('hashchange', () => {
+    chrome.runtime.sendMessage({ type: 'PAGE_DATA_UPDATED' });
+  });
+
+  console.log('MCP Server injected successfully');
+
+  chrome.runtime.sendMessage({ type: 'PAGE_DATA_UPDATED' });
 })();
