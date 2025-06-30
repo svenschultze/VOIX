@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>VOIX - Microphone Permission</title>
+  <style>
+    :root {
+      --voix-primary: #0056b3;
+      --voix-primary-hover: #004085;
+      --voix-background: #ffffff;
+      --voix-background-secondary: #f8f9fa;
+      --voix-text: #333333;
+      --voix-text-secondary: #666666;
+      --voix-border: #e1e5e9;
+      --voix-shadow: rgba(0, 0, 0, 0.1);
+      --voix-success: #28a745;
+      --voix-warning: #ffc107;
+      --voix-danger: #dc3545;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --voix-primary: #4a9eff;
+        --voix-primary-hover: #66b3ff;
+        --voix-background: #1a202c;
+        --voix-background-secondary: #2d3748;
+        --voix-text: #f7fafc;
+        --voix-text-secondary: #cbd5e0;
+        --voix-border: #4a5568;
+        --voix-shadow: rgba(0, 0, 0, 0.3);
+        --voix-success: #48bb78;
+        --voix-warning: #ed8936;
+        --voix-danger: #f56565;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--voix-background);
+      color: var(--voix-text);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .permission-container {
+      max-width: 500px;
+      padding: 40px;
+      background: var(--voix-background-secondary);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px var(--voix-shadow);
+      text-align: center;
+      border: 1px solid var(--voix-border);
+    }
+
+    .icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      color: var(--voix-text);
+      margin-bottom: 16px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .description {
+      color: var(--voix-text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    .permission-btn {
+      background: var(--voix-primary);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin: 8px;
+      min-width: 180px;
+    }
+
+    .permission-btn:hover {
+      background: var(--voix-primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 86, 179, 0.3);
+    }
+
+    .permission-btn:disabled {
+      background: var(--voix-text-secondary);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .secondary-btn {
+      background: transparent;
+      color: var(--voix-text-secondary);
+      border: 2px solid var(--voix-border);
+    }
+
+    .secondary-btn:hover {
+      background: var(--voix-border);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px var(--voix-shadow);
+    }
+
+    .status {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .status.success {
+      background: rgba(72, 187, 120, 0.1);
+      color: var(--voix-success);
+      border: 1px solid var(--voix-success);
+    }
+
+    .status.error {
+      background: rgba(245, 101, 101, 0.1);
+      color: var(--voix-danger);
+      border: 1px solid var(--voix-danger);
+    }
+
+    .status.info {
+      background: rgba(74, 158, 255, 0.1);
+      color: var(--voix-primary);
+      border: 1px solid var(--voix-primary);
+    }
+
+    .features {
+      margin-top: 32px;
+      text-align: left;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      margin: 12px 0;
+      color: var(--voix-text-secondary);
+    }
+
+    .feature-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+
+    .close-note {
+      margin-top: 32px;
+      font-size: 14px;
+      color: var(--voix-text-secondary);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="permission-container">
+    <div class="icon">🎤</div>
+    <h1>Enable Voice Input</h1>
+    <div class="description">
+      VOIX needs access to your microphone to provide voice-to-text functionality using OpenAI Whisper.
+      Your voice data is only sent to OpenAI for transcription and is not stored by this extension.
+    </div>
+
+    <div class="features">
+      <div class="feature-item">
+        <span class="feature-icon">🔒</span>
+        <span>Your voice is processed securely by OpenAI Whisper</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🌐</span>
+        <span>Supports 20+ languages with auto-detection</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">⚡</span>
+        <span>Fast and accurate speech recognition</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔧</span>
+        <span>Configurable settings in extension options</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px;">
+      <button id="grant-permission" class="permission-btn">
+        Grant Microphone Access
+      </button>
+      <button id="skip-permission" class="permission-btn secondary-btn">
+        Skip for Now
+      </button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div class="close-note">
+      You can close this tab after granting permission or change settings later in the extension options.
+    </div>
+  </div>
+
+  <script src="permissions.js"></script>
+</body>
+</html>

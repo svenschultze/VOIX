@@ -83,13 +83,29 @@
     
     <!-- Input Container -->
     <div class="chat-input-container">
+      <button id="live-voice-btn" class="live-voice-btn" title="Toggle live voice mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12C18,13.26 17.6,14.44 16.91,15.41L15.5,14C15.82,13.4 16,12.72 16,12A4,4 0 0,0 12,8V6M6,12A6,6 0 0,1 12,6V8A4,4 0 0,0 8,12H6M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <div class="input-wrapper">
+        <button id="voice-input-btn" class="voice-input-btn" title="Voice input">
+          <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <input type="text" id="chat-input" placeholder="Ask me to help with this page..." />
+        <button id="chat-send-btn" class="chat-send-btn-icon" title="Send message">
+          <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
       <button id="think-toggle-btn" class="think-toggle-btn" title="Toggle thinking mode">
         <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 2C8.13 2 5 5.13 5 9C5 11.38 6.19 13.47 8 14.74V17C8 17.55 8.45 18 9 18H15C15.55 18 16 17.55 16 17V14.74C17.81 13.47 19 11.38 19 9C19 5.13 15.87 2 12 2M14 13.58V16H13V11.41L14.71 9.71C15.1 9.32 15.1 8.68 14.71 8.29C14.32 7.9 13.68 7.9 13.29 8.29L12 9.59L10.71 8.29C10.32 7.9 9.68 7.9 9.29 8.29C8.9 8.68 8.9 9.32 9.29 9.71L11 11.41V16H10V13.58C8.23 12.81 7 11.05 7 9C7 6.24 9.24 4 12 4S17 6.24 17 9C17 11.05 15.77 12.81 14 13.58M9 20H15V21C15 21.55 14.55 22 14 22H10C9.45 22 9 21.55 9 21V20Z" fill="currentColor"/>
         </svg>
       </button>
-      <input type="text" id="chat-input" placeholder="Ask me to help with this page..." />
-      <button id="chat-send-btn" class="chat-send-btn">Send</button>
     </div>
     
     <!-- Status bar -->
@@ -104,6 +120,8 @@
     </div>
   </div>
 
+  <script src="dependencies/ort.js"></script>
+  <script src="dependencies/silero.min.js"></script>
   <script src="dependencies/marked.min.js"></script>
   <script src="dependencies/purify.min.js"></script>
   <script src="mcp-server.js"></script>

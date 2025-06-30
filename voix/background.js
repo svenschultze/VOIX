@@ -50,7 +50,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch(error => sendResponse({ error: error.message }));
     return true;
   }
+  if (message.type === 'WHISPER_TRANSCRIBE') {
+    console.log('Received Whisper transcription request');
+    llm.handleWhisperTranscription(message.data)
+      .then(response => sendResponse(response))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+  if (message.type === 'REQUEST_MICROPHONE_PERMISSION') {
+    console.log('Opening permissions tab for microphone access');
+    openPermissionsTab()
+      .then(() => sendResponse({ success: true }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
 });
+
+async function openPermissionsTab() {
+  try {
+    const permissionsUrl = chrome.runtime.getURL('permissions.html');
+    await chrome.tabs.create({
+      url: permissionsUrl,
+      active: true
+    });
+  } catch (error) {
+    console.error('Error opening permissions tab:', error);
+    throw error;
+  }
+}
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {

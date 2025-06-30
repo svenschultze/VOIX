@@ -4,7 +4,13 @@ const DEFAULT_SETTINGS = {
   apiKey: '',
   model: 'gpt-4',
   maxTokens: '1000',
-  temperature: '0.7'
+  temperature: '0.7',
+  // Whisper settings
+  whisperLanguage: 'en',
+  whisperModel: 'whisper-1',
+  whisperResponseFormat: 'json',
+  whisperPrompt: '',
+  whisperTemperature: '0'
 };
 
 // Presets for different providers
@@ -41,6 +47,13 @@ async function loadSettings() {
     document.getElementById('model').value = settings.model || DEFAULT_SETTINGS.model;
     document.getElementById('maxTokens').value = settings.maxTokens || DEFAULT_SETTINGS.maxTokens;
     document.getElementById('temperature').value = settings.temperature || DEFAULT_SETTINGS.temperature;
+    
+    // Load Whisper settings
+    document.getElementById('whisperLanguage').value = settings.whisperLanguage || DEFAULT_SETTINGS.whisperLanguage;
+    document.getElementById('whisperModel').value = settings.whisperModel || DEFAULT_SETTINGS.whisperModel;
+    document.getElementById('whisperResponseFormat').value = settings.whisperResponseFormat || DEFAULT_SETTINGS.whisperResponseFormat;
+    document.getElementById('whisperPrompt').value = settings.whisperPrompt || DEFAULT_SETTINGS.whisperPrompt;
+    document.getElementById('whisperTemperature').value = settings.whisperTemperature || DEFAULT_SETTINGS.whisperTemperature;
   } catch (error) {
     console.error('Error loading settings:', error);
     showStatus('Error loading settings', 'error');
@@ -83,7 +96,13 @@ async function saveSettings() {
       apiKey: document.getElementById('apiKey').value.trim(),
       model: document.getElementById('model').value.trim(),
       maxTokens: document.getElementById('maxTokens').value.trim(),
-      temperature: document.getElementById('temperature').value
+      temperature: document.getElementById('temperature').value,
+      // Include Whisper settings
+      whisperLanguage: document.getElementById('whisperLanguage').value,
+      whisperModel: document.getElementById('whisperModel').value,
+      whisperResponseFormat: document.getElementById('whisperResponseFormat').value,
+      whisperPrompt: document.getElementById('whisperPrompt').value.trim(),
+      whisperTemperature: document.getElementById('whisperTemperature').value
     };
 
     // Validate required fields
@@ -143,6 +162,33 @@ async function resetSettings() {
   } catch (error) {
     console.error('Error resetting settings:', error);
     showStatus('Error resetting settings: ' + error.message, 'error');
+  }
+}
+
+async function requestMicrophoneAccess() {
+  try {
+    showStatus('Requesting microphone access...', 'success');
+    
+    // Send message to background script to create offscreen document and request permissions
+    const response = await chrome.runtime.sendMessage({
+      type: 'REQUEST_MICROPHONE_PERMISSION'
+    });
+
+    if (response && response.success) {
+      showStatus('✅ Microphone access granted! Voice input is now available.', 'success');
+    } else {
+      const errorMessage = response?.error || 'Permission request failed';
+      if (errorMessage.includes('denied') || errorMessage.includes('NotAllowedError')) {
+        showStatus('❌ Microphone access denied. Please check your browser settings and try again.', 'error');
+      } else if (errorMessage.includes('NotFoundError')) {
+        showStatus('❌ No microphone found. Please connect a microphone and try again.', 'error');
+      } else {
+        showStatus('❌ ' + errorMessage, 'error');
+      }
+    }
+  } catch (error) {
+    console.error('Error requesting microphone access:', error);
+    showStatus('❌ Error requesting microphone access: ' + error.message, 'error');
   }
 }
 
