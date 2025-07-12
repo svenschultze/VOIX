@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import ProductSearchDemo from './components/ProductSearchDemo.vue'
+import ProductSearchDemo from '../components/ProductSearchDemo.vue'
 </script>
 
 # Produktsuche-Demo
