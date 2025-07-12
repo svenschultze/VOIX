@@ -4,6 +4,12 @@
 
 -----
 
+## 📖 Full Documentation
+
+For complete documentation, visit: [https://svenschultze.github.io/VOIX/](https://svenschultze.github.io/VOIX/)
+
+-----
+
 ## 🚀 Key Features
 
   * **Easy Integration**: Add AI capabilities to any website with simple HTML tags. No complex setup or API integration is required.
