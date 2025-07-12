@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "VOIX"
   text: "Documentation"
-  tagline: VOIX is a lightweight browser framework that lets you add AI assistants to any website using just HTML. You define tools with <tool> tags and provide state with <context>, and the VOIX Chrome extension turns these into structured API calls the assistant can use—without touching your layout, styles, or data privacy.
+  tagline: VOIX is a lightweight browser framework that lets you add AI assistants to any website using just HTML. You define tools with &lt;tool&gt; tags and provide state with &lt;context&gt;, and the VOIX Chrome extension turns these into structured API calls the assistant can use—without touching your layout, styles, or data privacy.
   actions:
     - theme: brand
       text: Get Started
