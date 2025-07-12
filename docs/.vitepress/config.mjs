@@ -5,10 +5,12 @@ export default defineConfig({
   title: "VOIX Documentation",
   base: '/VOIX/',
   description: "VOIX is a lightweight browser framework that lets you add AI assistants to any website using just HTML. You define tools with <tool> tags and provide state with <context>, and the VOIX Chrome extension turns these into structured API calls the assistant can use—without touching your layout, styles, or data privacy.",
+  head: [
+    ['link', { rel: 'icon', href: '/VOIX/voix_icon_128px.png' }]
+  ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/voix_icon_128px.png',
-    
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
@@ -31,9 +33,12 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Resources',
+        text: 'Framework Integrations',
         items: [
-          { text: 'Examples', link: '/examples' }
+          { text: 'Vue.js Integration', link: '/vue-integration' },
+          { text: 'React Integration', link: '/react-integration' },
+          { text: 'Svelte Integration', link: '/svelte-integration' },
+          { text: 'Angular Integration', link: '/angular-integration' }
         ]
       },
       {
