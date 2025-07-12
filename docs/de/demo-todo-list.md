@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import TodoDemo from './components/TodoDemo.vue'
+import TodoDemo from '../components/TodoDemo.vue'
 </script>
 
 # To-Do-Listen-Demo
