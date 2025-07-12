@@ -6,7 +6,13 @@ export async function getSettings() {
     apiKey: '',
     model: 'gpt-4',
     maxTokens: '1000',
-    temperature: '0.7'
+    temperature: '0.7',
+    // Whisper settings
+    whisperLanguage: 'en',
+    whisperModel: 'whisper-1',
+    whisperResponseFormat: 'json',
+    whisperPrompt: '',
+    whisperTemperature: '0'
   };
   try {
     const settings = await chrome.storage.sync.get(defaultSettings);
@@ -42,6 +48,85 @@ export async function testConnection(testData) {
   } catch (error) {
     console.error('Connection test failed:', error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function handleWhisperTranscription(data) {
+  try {
+    const settings = await getSettings();
+    if (!settings.apiKey) {
+      throw new Error('API key not configured. Please configure your OpenAI API key in the extension settings.');
+    }
+
+    // Convert base64 back to blob
+    const audioData = atob(data.audioBlob);
+    const audioArray = new Uint8Array(audioData.length);
+    for (let i = 0; i < audioData.length; i++) {
+      audioArray[i] = audioData.charCodeAt(i);
+    }
+    const audioBlob = new Blob([audioArray], { type: 'audio/webm' });
+
+    // Create FormData for the API request
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'audio.webm');
+    formData.append('model', settings.whisperModel || 'whisper-1');
+    formData.append('response_format', settings.whisperResponseFormat || 'json');
+    
+    // Add language if not auto-detect
+    if (settings.whisperLanguage && settings.whisperLanguage !== 'auto') {
+      formData.append('language', settings.whisperLanguage);
+    }
+    
+    // Add custom prompt if provided
+    if (settings.whisperPrompt && settings.whisperPrompt.trim()) {
+      formData.append('prompt', settings.whisperPrompt.trim());
+    }
+    
+    // Add temperature if not default
+    if (settings.whisperTemperature && settings.whisperTemperature !== '0') {
+      formData.append('temperature', parseFloat(settings.whisperTemperature));
+    }
+
+    // Make request to OpenAI Whisper API
+    const response = await fetch(`${settings.baseUrl}/audio/transcriptions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${settings.apiKey}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Whisper API Error ${response.status}: ${errorData.error?.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+    
+    // Handle different response formats
+    let transcriptionText = '';
+    if (settings.whisperResponseFormat === 'json' || settings.whisperResponseFormat === 'verbose_json') {
+      transcriptionText = result.text;
+    } else {
+      // For text, srt, vtt formats, the response is the text directly
+      transcriptionText = typeof result === 'string' ? result : result.text || '';
+    }
+    
+    if (!transcriptionText) {
+      throw new Error('No transcription text received from Whisper API');
+    }
+
+    return {
+      success: true,
+      text: transcriptionText.trim()
+    };
+
+  } catch (error) {
+    console.error('Whisper transcription error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 }
 

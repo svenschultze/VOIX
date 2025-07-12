@@ -9,11 +9,29 @@ class VOIXSidePanel {
     this.thinkModeEnabled = false;
     this.lastToolsSnapshot = null;
     
+    // Voice input properties
+    this.isRecording = false;
+    this.mediaRecorder = null;
+    this.audioChunks = [];
+    this.voiceInputSupported = false;
+    
+    // Live voice mode properties
+    this.liveVoiceMode = false;
+    this.vadInstance = null;
+    this.liveVoiceStream = null;
+    this.vadSupported = false;
+    
     this.init();
   }
 
   async init() {
     console.log('VOIX Side Panel initializing...');
+    
+    // Initialize voice input
+    this.initVoiceInput();
+    
+    // Initialize live voice mode
+    this.initLiveVoiceMode();
     
     // Get the current active tab
     await this.getCurrentTab();
@@ -36,6 +54,31 @@ class VOIXSidePanel {
     console.log('VOIX Side Panel initialized');
   }
 
+  initLiveVoiceMode() {
+    // Check if VAD is available
+    if (typeof vad !== 'undefined' && vad.MicVAD) {
+      this.vadSupported = true;
+      console.log('Silero VAD initialized successfully');
+    } else {
+      this.vadSupported = false;
+      console.log('Silero VAD not available, checking Web Speech API fallback...');
+      
+      // Check for Web Speech API as fallback
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        this.vadSupported = true; // Use Web Speech API as fallback
+        console.log('Web Speech API available as fallback for live voice mode');
+      } else {
+        console.log('No voice recognition support available');
+      }
+    }
+  }
+
+  initVoiceInput() {
+    // Voice input is supported via permissions tab
+    this.voiceInputSupported = true;
+    console.log('Voice input initialized successfully with permissions tab approach');
+  }
+
   async getCurrentTab() {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -54,6 +97,8 @@ class VOIXSidePanel {
     const input = document.getElementById('chat-input');
     const thinkToggleBtn = document.getElementById('think-toggle-btn');
     const resetBtn = document.getElementById('chat-reset-btn');
+    const voiceBtn = document.getElementById('voice-input-btn');
+    const liveVoiceBtn = document.getElementById('live-voice-btn');
     
     sendBtn.addEventListener('click', () => this.sendMessage());
     input.addEventListener('keypress', (e) => {
@@ -67,11 +112,592 @@ class VOIXSidePanel {
       thinkToggleBtn.title = this.thinkModeEnabled ? 'Thinking mode ON' : 'Thinking mode OFF';
     });
 
+    // Live voice mode functionality
+    if (liveVoiceBtn) {
+      liveVoiceBtn.addEventListener('click', () => this.toggleLiveVoiceMode());
+    }
+
+    // Voice input functionality
+    if (voiceBtn) {
+      voiceBtn.addEventListener('click', () => this.toggleVoiceInput());
+    }
+
     // Reset button
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
         this.resetChat();
       });
+    }
+    
+    // Update voice button states based on support
+    this.updateVoiceUI();
+    this.updateLiveVoiceUI();
+  }
+
+  async toggleLiveVoiceMode() {
+    if (!this.vadSupported) {
+      this.showLiveVoiceStatus('⚠️ Live voice mode not supported', 'error');
+      setTimeout(() => this.hideLiveVoiceStatus(), 3000);
+      return;
+    }
+
+    if (this.liveVoiceMode) {
+      // Stop live voice mode
+      await this.stopLiveVoiceMode();
+    } else {
+      // Start live voice mode
+      await this.startLiveVoiceMode();
+    }
+  }
+
+  async startLiveVoiceMode() {
+    try {
+      console.log('Starting live voice mode...');
+      
+      // Check if Silero VAD is available first
+      if (typeof vad !== 'undefined' && vad.MicVAD) {
+        console.log('Attempting to use Silero VAD...');
+        
+        // Request microphone permission
+        this.liveVoiceStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            sampleRate: 16000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true
+          }
+        });
+
+        // Try to initialize VAD
+        try {
+          this.vadInstance = await vad.MicVAD.new({
+            stream: this.liveVoiceStream,
+            onSpeechStart: () => {
+              console.log('Speech start detected');
+              this.updateLiveVoiceUI('listening');
+              this.showLiveVoiceStatus('🎤 Listening...', 'listening');
+            },
+            onSpeechEnd: async (audio) => {
+              console.log('Speech end detected, processing audio...');
+              this.updateLiveVoiceUI('active');
+              this.showLiveVoiceStatus('🔄 Processing...', 'active');
+              
+              // Convert Float32Array to audio blob and transcribe
+              await this.processVADAudio(audio);
+            },
+            onVADMisfire: () => {
+              console.log('VAD misfire detected');
+              this.updateLiveVoiceUI('active');
+              this.showLiveVoiceStatus('🎯 Live voice mode active', 'active');
+            }
+          });
+
+          // Start VAD
+          this.vadInstance.start();
+          this.liveVoiceMode = true;
+          this.updateLiveVoiceUI('active');
+          this.showLiveVoiceStatus('🎯 Live voice mode active (VAD)', 'active');
+          
+          console.log('Live voice mode started successfully with Silero VAD');
+          return;
+          
+        } catch (vadError) {
+          console.warn('Silero VAD initialization failed, falling back to Web Speech API:', vadError);
+          
+          // Clean up stream if VAD failed
+          if (this.liveVoiceStream) {
+            this.liveVoiceStream.getTracks().forEach(track => track.stop());
+            this.liveVoiceStream = null;
+          }
+        }
+      }
+      
+      // Fallback to Web Speech API
+      console.log('Using Web Speech API fallback for live voice mode...');
+      await this.startWebSpeechLiveMode();
+
+    } catch (error) {
+      console.error('Error starting live voice mode:', error);
+      this.liveVoiceMode = false;
+      this.updateLiveVoiceUI();
+      
+      if (error.name === 'NotAllowedError') {
+        this.showLiveVoiceStatus('🔓 Microphone permission denied', 'error');
+        chrome.runtime.sendMessage({ type: 'REQUEST_MICROPHONE_PERMISSION' });
+      } else {
+        let errorMessage = '⚠️ Live voice mode error';
+        if (error.name === 'NotFoundError') {
+          errorMessage = '⚠️ No microphone found';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = '⚠️ Microphone in use by another app';
+        }
+        
+        this.showLiveVoiceStatus(errorMessage, 'error');
+      }
+      
+      setTimeout(() => this.hideLiveVoiceStatus(), 3000);
+    }
+  }
+
+  async startWebSpeechLiveMode() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      throw new Error('Web Speech API not supported');
+    }
+
+    this.speechRecognition = new SpeechRecognition();
+    this.speechRecognition.continuous = true;
+    this.speechRecognition.interimResults = false;
+    this.speechRecognition.lang = 'en-US';
+
+    this.speechRecognition.onstart = () => {
+      console.log('Web Speech API started');
+      this.liveVoiceMode = true;
+      this.updateLiveVoiceUI('active');
+      this.showLiveVoiceStatus('🎯 Live voice mode active (Web Speech)', 'active');
+    };
+
+    this.speechRecognition.onresult = (event) => {
+      const lastResult = event.results[event.results.length - 1];
+      if (lastResult.isFinal) {
+        const transcript = lastResult[0].transcript.trim();
+        console.log('Speech recognized:', transcript);
+        
+        if (transcript.length > 0) {
+          this.showLiveVoiceStatus('🔄 Processing...', 'active');
+          this.sendAutoMessage(transcript);
+          this.showLiveVoiceStatus('✓ Message sent', 'active');
+          
+          // Reset status after 2 seconds
+          setTimeout(() => {
+            if (this.liveVoiceMode) {
+              this.showLiveVoiceStatus('🎯 Live voice mode active (Web Speech)', 'active');
+            }
+          }, 2000);
+        }
+      }
+    };
+
+    this.speechRecognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      
+      if (event.error === 'not-allowed') {
+        this.showLiveVoiceStatus('🔓 Microphone permission denied', 'error');
+        chrome.runtime.sendMessage({ type: 'REQUEST_MICROPHONE_PERMISSION' });
+      } else if (event.error === 'no-speech') {
+        // This is normal, just continue listening
+        console.log('No speech detected, continuing...');
+      } else {
+        this.showLiveVoiceStatus('⚠️ Speech recognition error', 'error');
+      }
+    };
+
+    this.speechRecognition.onend = () => {
+      console.log('Speech recognition ended');
+      // Restart if live voice mode is still active
+      if (this.liveVoiceMode) {
+        try {
+          this.speechRecognition.start();
+        } catch (error) {
+          console.error('Error restarting speech recognition:', error);
+        }
+      }
+    };
+
+    // Start recognition
+    this.speechRecognition.start();
+  }
+
+  async stopLiveVoiceMode() {
+    try {
+      console.log('Stopping live voice mode...');
+      
+      // Stop Silero VAD if active
+      if (this.vadInstance) {
+        this.vadInstance.pause();
+        this.vadInstance = null;
+      }
+      
+      // Stop microphone stream if active
+      if (this.liveVoiceStream) {
+        this.liveVoiceStream.getTracks().forEach(track => track.stop());
+        this.liveVoiceStream = null;
+      }
+      
+      // Stop Web Speech API if active
+      if (this.speechRecognition) {
+        this.speechRecognition.stop();
+        this.speechRecognition = null;
+      }
+      
+      this.liveVoiceMode = false;
+      this.updateLiveVoiceUI();
+      this.hideLiveVoiceStatus();
+      
+      console.log('Live voice mode stopped');
+      
+    } catch (error) {
+      console.error('Error stopping live voice mode:', error);
+    }
+  }
+
+  async processVADAudio(audioFloat32Array) {
+    try {
+      // Convert Float32Array to WAV blob
+      const audioBlob = this.float32ArrayToWavBlob(audioFloat32Array, 16000);
+      
+      // Convert blob to base64 for transmission
+      const base64AudioData = await this.blobToBase64(audioBlob);
+      
+      // Send to OpenAI Whisper API via background script
+      chrome.runtime.sendMessage({
+        type: 'WHISPER_TRANSCRIBE',
+        data: {
+          audioBlob: base64AudioData
+        }
+      }, (response) => {
+        if (response && response.success && response.text) {
+          const transcription = response.text.trim();
+          
+          if (transcription.length > 0) {
+            // Automatically send the transcribed text as a chat message
+            this.sendAutoMessage(transcription);
+            this.showLiveVoiceStatus('✓ Message sent', 'active');
+          } else {
+            this.showLiveVoiceStatus('🎯 Live voice mode active', 'active');
+          }
+        } else {
+          console.error('Whisper transcription failed:', response?.error);
+          this.showLiveVoiceStatus('⚠️ Transcription failed', 'active');
+        }
+        
+        // Hide status after 2 seconds, but keep live voice mode active
+        setTimeout(() => {
+          if (this.liveVoiceMode) {
+            this.showLiveVoiceStatus('🎯 Live voice mode active', 'active');
+          }
+        }, 2000);
+      });
+
+    } catch (error) {
+      console.error('Error processing VAD audio:', error);
+      this.showLiveVoiceStatus('⚠️ Processing failed', 'active');
+      setTimeout(() => {
+        if (this.liveVoiceMode) {
+          this.showLiveVoiceStatus('🎯 Live voice mode active', 'active');
+        }
+      }, 2000);
+    }
+  }
+
+  float32ArrayToWavBlob(float32Array, sampleRate) {
+    // Convert Float32Array to 16-bit PCM
+    const int16Array = new Int16Array(float32Array.length);
+    for (let i = 0; i < float32Array.length; i++) {
+      const sample = Math.max(-1, Math.min(1, float32Array[i]));
+      int16Array[i] = sample * 0x7FFF;
+    }
+
+    // Create WAV header
+    const length = int16Array.length;
+    const buffer = new ArrayBuffer(44 + length * 2);
+    const view = new DataView(buffer);
+
+    // WAV header
+    const writeString = (offset, string) => {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    };
+
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + length * 2, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(36, 'data');
+    view.setUint32(40, length * 2, true);
+
+    // Copy audio data
+    const offset = 44;
+    for (let i = 0; i < length; i++) {
+      view.setInt16(offset + i * 2, int16Array[i], true);
+    }
+
+    return new Blob([buffer], { type: 'audio/wav' });
+  }
+
+  sendAutoMessage(message) {
+    const messageWithThinkMode = this.thinkModeEnabled ? `${message} /think` : `${message} /no_think`;
+    this.addMessage('user', message);
+    
+    // Send the user message; LLM logic will fetch tools/context
+    chrome.runtime.sendMessage({
+      type: 'LLM_REQUEST',
+      data: { role: 'user', content: messageWithThinkMode }
+    }, (response) => {
+      if (response?.role === 'assistant') {
+        this.addMessage('assistant', response.content);
+      } else if (response?.content) {
+        this.addMessage('assistant', response.content);
+      } else {
+        this.addMessage('assistant', 'Sorry, there was an error processing your request.');
+      }
+    });
+  }
+
+  updateLiveVoiceUI(state = null) {
+    const liveVoiceBtn = document.getElementById('live-voice-btn');
+    if (!liveVoiceBtn) return;
+
+    // Remove all state classes
+    liveVoiceBtn.classList.remove('active', 'listening', 'disabled');
+
+    if (!this.vadSupported) {
+      liveVoiceBtn.classList.add('disabled');
+      liveVoiceBtn.title = 'Live voice mode not supported';
+    } else if (this.liveVoiceMode) {
+      if (state === 'listening') {
+        liveVoiceBtn.classList.add('listening');
+        liveVoiceBtn.title = 'Live voice mode - Listening for speech';
+      } else {
+        liveVoiceBtn.classList.add('active');
+        liveVoiceBtn.title = 'Live voice mode ON - Click to stop';
+      }
+    } else {
+      liveVoiceBtn.title = 'Click to start live voice mode';
+    }
+  }
+
+  showLiveVoiceStatus(message, type = 'active') {
+    const liveVoiceBtn = document.getElementById('live-voice-btn');
+    if (!liveVoiceBtn) return;
+
+    // Remove existing status indicator
+    let statusEl = liveVoiceBtn.querySelector('.live-voice-status');
+    if (statusEl) {
+      statusEl.remove();
+    }
+
+    // Create new status indicator
+    statusEl = document.createElement('div');
+    statusEl.className = `live-voice-status ${type}`;
+    statusEl.textContent = message;
+    liveVoiceBtn.appendChild(statusEl);
+
+    // Show with animation
+    setTimeout(() => {
+      statusEl.classList.add('visible');
+    }, 10);
+  }
+
+  hideLiveVoiceStatus() {
+    const liveVoiceBtn = document.getElementById('live-voice-btn');
+    if (!liveVoiceBtn) return;
+
+    const statusEl = liveVoiceBtn.querySelector('.live-voice-status');
+    if (statusEl) {
+      statusEl.classList.remove('visible');
+      setTimeout(() => {
+        statusEl.remove();
+      }, 200);
+    }
+  }
+
+  async toggleVoiceInput() {
+    if (!this.voiceInputSupported) {
+      setTimeout(() => this.hideVoiceStatus(), 3000);
+      return;
+    }
+
+    if (this.isRecording) {
+      // Stop recording
+      this.stopRecording();
+    } else {
+      // Start recording
+      await this.startRecording();
+    }
+  }
+
+  async startRecording() {
+    try {
+      // Try to access microphone directly first
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 16000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true
+        }
+      });
+
+      this.audioChunks = [];
+      this.mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+        }
+      };
+
+      this.mediaRecorder.onstop = async () => {
+        console.log('Recording stopped, processing audio...');
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        
+        // Stop all tracks to release the microphone
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Process the audio with OpenAI Whisper
+        await this.processAudioWithWhisper(audioBlob);
+      };
+
+      this.mediaRecorder.onerror = (event) => {
+        console.error('MediaRecorder error:', event.error);
+        this.isRecording = false;
+        this.updateVoiceUI();
+        setTimeout(() => this.hideVoiceStatus(), 3000);
+        
+        // Stop all tracks to release the microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      // Start recording
+      this.mediaRecorder.start();
+      this.isRecording = true;
+      this.updateVoiceUI();
+
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      this.isRecording = false;
+      this.updateVoiceUI();
+      
+      // If permission was denied, open permissions tab
+      if (error.name === 'NotAllowedError') {
+        chrome.runtime.sendMessage({ type: 'REQUEST_MICROPHONE_PERMISSION' });
+        setTimeout(() => this.hideVoiceStatus(), 3000);
+      } else {
+        let errorMessage = '⚠️ Voice input error';
+        if (error.name === 'NotFoundError') {
+          errorMessage = '⚠️ No microphone found';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = '⚠️ Microphone in use by another app';
+        }
+        
+        setTimeout(() => this.hideVoiceStatus(), 3000);
+      }
+    }
+  }
+
+  stopRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.isRecording = false;
+      this.updateVoiceUI();
+    }
+  }
+
+  async processAudioWithWhisper(audioBlob) {
+    try {
+      // Convert blob to base64 for transmission
+      const base64AudioData = await this.blobToBase64(audioBlob);
+      
+      // Send to OpenAI Whisper API via background script
+      chrome.runtime.sendMessage({
+        type: 'WHISPER_TRANSCRIBE',
+        data: {
+          audioBlob: base64AudioData
+        }
+      }, (response) => {
+        if (response && response.success && response.text) {
+          // Update input field with transcribed text
+          const input = document.getElementById('chat-input');
+          input.value = response.text;
+          input.focus();
+          
+          setTimeout(() => this.hideVoiceStatus(), 2000);
+        } else {
+          console.error('Whisper transcription failed:', response?.error);
+          setTimeout(() => this.hideVoiceStatus(), 3000);
+        }
+      });
+
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      setTimeout(() => this.hideVoiceStatus(), 3000);
+    }
+  }
+
+  async blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result.split(',')[1]; // Remove data URL prefix
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  updateVoiceUI() {
+    const voiceBtn = document.getElementById('voice-input-btn');
+    if (!voiceBtn) return;
+
+    // Remove all state classes
+    voiceBtn.classList.remove('recording', 'disabled');
+
+    if (!this.voiceInputSupported) {
+      voiceBtn.classList.add('disabled');
+      voiceBtn.title = 'Voice input not supported in this browser';
+    } else if (this.isRecording) {
+      voiceBtn.classList.add('recording');
+      voiceBtn.title = 'Click to stop recording';
+    } else {
+      voiceBtn.title = 'Click to start voice input';
+    }
+  }
+
+  showVoiceStatus(message, type = 'recording') {
+    const voiceBtn = document.getElementById('voice-input-btn');
+    if (!voiceBtn) return;
+
+    // Remove existing status indicator
+    let statusEl = voiceBtn.querySelector('.voice-status');
+    if (statusEl) {
+      statusEl.remove();
+    }
+
+    // Create new status indicator
+    statusEl = document.createElement('div');
+    statusEl.className = `voice-status ${type}`;
+    statusEl.textContent = message;
+    voiceBtn.appendChild(statusEl);
+
+    // Show with animation
+    setTimeout(() => {
+      statusEl.classList.add('visible');
+    }, 10);
+  }
+
+  hideVoiceStatus() {
+    const voiceBtn = document.getElementById('voice-input-btn');
+    if (!voiceBtn) return;
+
+    const statusEl = voiceBtn.querySelector('.voice-status');
+    if (statusEl) {
+      statusEl.classList.remove('visible');
+      setTimeout(() => {
+        statusEl.remove();
+      }, 200);
     }
   }
 
