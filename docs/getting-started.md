@@ -169,4 +169,3 @@ If you see "Failed to connect to API":
 
 - Learn about [Core Concepts](./core-concepts.md) to understand how VOIX works
 - Explore [Tools](./tools.md) to build VOIX-compatible websites
-- Check out [Examples](./examples.md) for implementation ideas

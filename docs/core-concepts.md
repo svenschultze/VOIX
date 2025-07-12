@@ -157,4 +157,3 @@ Each step happens in the browser. The only external dependency is the AI provide
 
 - Learn about [Tools](./tools.md) to create interactive capabilities
 - Understand [Context](./context.md) for sharing application state
-- Explore [Examples](./examples.md) for real-world implementations

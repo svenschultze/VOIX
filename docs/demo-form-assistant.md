@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import FormAssistantDemo from './.vitepress/components/FormAssistantDemo.vue'
+import FormAssistantDemo from './components/FormAssistantDemo.vue'
 </script>
 
 # Form Assistant Demo

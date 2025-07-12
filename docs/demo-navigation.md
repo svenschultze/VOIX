@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import NavigationDemo from './.vitepress/components/NavigationDemo.vue'
+import NavigationDemo from './components/NavigationDemo.vue'
 </script>
 
 # Navigation Helper Demo

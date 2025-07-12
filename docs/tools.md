@@ -313,5 +313,4 @@ Tools in VOIX are simple HTML elements that declare what actions the AI can perf
 ## Next Steps
 
 - Learn about [Context](./context.md) for providing state information
-- Explore [Examples](./examples.md) for complete implementations  
 - Review [Getting Started](./getting-started.md) for setup instructions

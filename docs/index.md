@@ -34,7 +34,7 @@ features:
   - icon: 🎯
     title: Framework Agnostic
     details: Works with React, Vue, Svelte, or vanilla JavaScript. Complete examples for all major frameworks.
-    link: /examples
+    link: /core-concepts
   - icon: 🔒
     title: Privacy First
     details: All data stays local in your browser. No tracking, no data collection, complete user control.

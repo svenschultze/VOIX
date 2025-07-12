@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import ProductSearchDemo from './.vitepress/components/ProductSearchDemo.vue'
+import ProductSearchDemo from './components/ProductSearchDemo.vue'
 </script>
 
 # Product Search Demo

@@ -209,5 +209,4 @@ Context elements are simple containers for plain text that help the AI understan
 ## Next Steps
 
 - Learn about [Tools](./tools.md) for creating interactive tools
-- Explore [Examples](./examples.md) for complete implementations
 - Review [Getting Started](./getting-started.md) for setup instructions

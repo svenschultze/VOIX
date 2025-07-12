@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import DataTableDemo from './.vitepress/components/DataTableDemo.vue'
+import DataTableDemo from './components/DataTableDemo.vue'
 </script>
 
 # Data Table Demo

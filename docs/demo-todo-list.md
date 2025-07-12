@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import TodoDemo from './.vitepress/components/TodoDemo.vue'
+import TodoDemo from './components/TodoDemo.vue'
 </script>
 
 # Todo List Demo
