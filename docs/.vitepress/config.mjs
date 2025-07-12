@@ -21,6 +21,7 @@ export default defineConfig({
       {
         text: 'Introduction',
         items: [
+          { text: 'The VOIX Vision', link: '/vision' },
           { text: 'Getting Started', link: '/getting-started' }
         ]
       },

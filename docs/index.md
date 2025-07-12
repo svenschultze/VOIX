@@ -11,6 +11,9 @@ hero:
       text: Get Started
       link: /getting-started
     - theme: alt
+      text: Vision
+      link: /vision
+    - theme: alt
       text: Developer Guide
       link: /core-concepts
 
