@@ -38,11 +38,16 @@ jobs:
       #   with:
       #     version: 9 # Not needed if you've set "packageManager" in package.json
       # - uses: oven-sh/setup-bun@v1 # Uncomment this if you're using Bun
+      # run ls -l to verify the sparse checkout
+      - name: List files
+        run: ls -l
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm # or pnpm / yarn
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
