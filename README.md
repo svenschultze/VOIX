@@ -37,6 +37,8 @@ VOIX represents a fundamental shift in web-AI integration. Rather than each webs
 
 Imagine a future where `<tool>` and `<context>` are HTML standards, where every browser supports AI interactions natively, and where privacy isn't a feature but an architectural guarantee. VOIX is the first step toward that future.
 
+📖 [Read the full vision](https://svenschultze.github.io/VOIX/vision.html)
+
 ## ⚙️ How It Works
 
 VOIX operates through a simple yet powerful architecture, connecting your website with an AI assistant via a Chrome extension.
@@ -70,7 +72,9 @@ This architecture allows developers to add AI capabilities without needing to in
 3.  **Configure Voice Input (Optional)**: VOIX uses OpenAI's Whisper API for voice transcription, which you can configure in the settings.
 4.  **Test Your Configuration**: Click "Test Connection" to verify your settings and then save them.
 
-## core concepts
+📖 [Detailed setup guide](https://svenschultze.github.io/VOIX/getting-started.html)
+
+## Core Concepts
 
 ### Tools
 
@@ -107,6 +111,8 @@ document.querySelector('[name=create_task]').addEventListener('call', (e) => {
 });
 ```
 
+📖 [Complete tools documentation](https://svenschultze.github.io/VOIX/tools.html)
+
 ### Context
 
 Context elements provide the AI with plain text information about your application's current state.
@@ -129,6 +135,8 @@ Context elements provide the AI with plain text information about your applicati
   * **Be Concise**: Only provide information that is relevant to the AI's understanding of the current state.
   * **Update Frequently**: Keep the context current by updating it whenever your application's state changes.
 
+📖 [Complete context documentation](https://svenschultze.github.io/VOIX/context.html)
+
 ## 🚀 Using VOIX
 
   * **Opening the Chat Panel**: Click the VOIX icon in your toolbar and select "Open side panel".
@@ -143,3 +151,25 @@ Context elements provide the AI with plain text information about your applicati
   * Voice recordings and chat messages are sent directly to your configured AI provider.
   * VOIX does not collect or store any personal data.
   * Page content is only accessed when you interact with VOIX.
+
+## 📚 Documentation & Resources
+
+- **[Full Documentation](https://svenschultze.github.io/VOIX/)** - Complete guide and API reference
+- **[The VOIX Vision](https://svenschultze.github.io/VOIX/vision.html)** - Understanding the philosophy and future
+- **[Getting Started](https://svenschultze.github.io/VOIX/getting-started.html)** - Detailed setup instructions
+- **[Core Concepts](https://svenschultze.github.io/VOIX/core-concepts.html)** - Architecture and design principles
+- **[Tools Reference](https://svenschultze.github.io/VOIX/tools.html)** - Complete guide to creating tools
+- **[Context Reference](https://svenschultze.github.io/VOIX/context.html)** - Managing application state
+
+### Framework Integration Guides
+- **[Vue.js](https://svenschultze.github.io/VOIX/vue-integration.html)** - Vue 3 patterns and best practices
+- **[React](https://svenschultze.github.io/VOIX/react-integration.html)** - React hooks and component patterns
+- **[Svelte](https://svenschultze.github.io/VOIX/svelte-integration.html)** - Svelte 5 with Runes
+- **[Angular](https://svenschultze.github.io/VOIX/angular-integration.html)** - Angular components and services
+
+### Interactive Demos
+- **[Todo List](https://svenschultze.github.io/VOIX/demo-todo-list.html)** - Task management example
+- **[Product Search](https://svenschultze.github.io/VOIX/demo-product-search.html)** - E-commerce filtering
+- **[Form Assistant](https://svenschultze.github.io/VOIX/demo-form-assistant.html)** - Smart form filling
+- **[Navigation Helper](https://svenschultze.github.io/VOIX/demo-navigation.html)** - Multi-page navigation
+- **[Data Table](https://svenschultze.github.io/VOIX/demo-data-table.html)** - Table operations
