@@ -15,6 +15,28 @@ For complete documentation, visit: [https://svenschultze.github.io/VOIX/](https:
   * **Framework Agnostic**: Works with React, Vue, Svelte, or vanilla JavaScript.
   * **Privacy First**: All data stays local in your browser. No tracking, no data collection, and complete user control.
 
+## 🌐 The Vision
+
+VOIX represents a fundamental shift in web-AI integration. Rather than each website building its own chatbot or API integrations, VOIX establishes a standard where:
+
+### Websites Become Capability Providers
+- Sites declare what they can do using `<tool>` and `<context>` tags
+- No need for AI infrastructure or API keys
+- Works like semantic HTML—simple, declarative, and standards-based
+
+### Users Maintain Complete Control
+- Choose any AI provider (OpenAI, Anthropic, local models)
+- Conversations never touch the website's servers
+- Switch providers anytime without losing functionality
+
+### Innovation Remains Decentralized
+- VOIX is a standard, not a product
+- Anyone can build compatible interfaces
+- Future browsers could integrate native support
+- Enables an ecosystem like we have with web browsers today
+
+Imagine a future where `<tool>` and `<context>` are HTML standards, where every browser supports AI interactions natively, and where privacy isn't a feature but an architectural guarantee. VOIX is the first step toward that future.
+
 ## ⚙️ How It Works
 
 VOIX operates through a simple yet powerful architecture, connecting your website with an AI assistant via a Chrome extension.

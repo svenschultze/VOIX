@@ -31,7 +31,7 @@ This mirrors how users already choose:
 
 ### 3. Decentralized Innovation
 
-VOIX is not a product—it's a protocol. Just as anyone can build:
+VOIX is a standard. Just as anyone can build:
 - A web browser that reads HTML
 - An RSS reader that consumes feeds
 - A screen reader that interprets ARIA labels
@@ -99,7 +99,7 @@ Just as we have multiple web browsers, we could have multiple VOIX implementatio
 
 ### Beyond Browsers
 
-The VOIX protocol could extend beyond traditional web browsers:
+The VOIX standard could extend beyond traditional web browsers:
 
 #### Smart Assistants
 Voice assistants like Alexa or Google Assistant could navigate websites using VOIX tools:
