@@ -229,6 +229,8 @@ console.log('Injecting MCP Server into page');
       const toolElements = document.querySelectorAll('tool[name]');
       toolElements.forEach((toolEl) => {
         try {
+          // if disabled attribute is present, skip this tool
+          if (toolEl.hasAttribute('disabled')) return;
           const name = toolEl.getAttribute('name');
           const description = toolEl.getAttribute('description') || toolEl.textContent?.trim() || 'No description';
           const schema = this.parseToolSchema(toolEl);
