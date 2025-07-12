@@ -13,6 +13,7 @@ export default defineConfig({
     logo: '/voix_icon_128px.png',
     nav: [
       { text: 'Home', link: '/' },
+      { text: 'Vision', link: '/vision' },
       { text: 'Getting Started', link: '/getting-started' },
       { text: 'Developer Guide', link: '/core-concepts' },
     ],
