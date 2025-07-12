@@ -2,13 +2,9 @@
 
 **VOIX is a lightweight browser framework that lets you add AI assistants to any website using just HTML. You define tools with `<tool>` tags and provide state with `<context>`, and the VOIX Chrome extension turns these into structured API calls the assistant can use—without touching your layout, styles, or data privacy.**
 
------
-
 ## 📖 Full Documentation
 
 For complete documentation, visit: [https://svenschultze.github.io/VOIX/](https://svenschultze.github.io/VOIX/)
-
------
 
 ## 🚀 Key Features
 
@@ -18,8 +14,6 @@ For complete documentation, visit: [https://svenschultze.github.io/VOIX/](https:
   * **Context Awareness**: Provide real-time application state to AI for intelligent, contextual responses.
   * **Framework Agnostic**: Works with React, Vue, Svelte, or vanilla JavaScript.
   * **Privacy First**: All data stays local in your browser. No tracking, no data collection, and complete user control.
-
------
 
 ## ⚙️ How It Works
 
@@ -38,8 +32,6 @@ VOIX operates through a simple yet powerful architecture, connecting your websit
 
 This architecture allows developers to add AI capabilities without needing to integrate complex APIs or SDKs. You control what the AI can do and what data it can access, and the user's conversation with the AI remains private.
 
------
-
 ## 📦 Installation and Setup
 
 ### Chrome Web Store Installation
@@ -55,8 +47,6 @@ This architecture allows developers to add AI capabilities without needing to in
 2.  **Configure Your AI Provider**: Choose and configure an AI provider like OpenAI, Azure OpenAI, Anthropic, or a local model via Ollama by providing the necessary credentials (API key, Base URL, etc.).
 3.  **Configure Voice Input (Optional)**: VOIX uses OpenAI's Whisper API for voice transcription, which you can configure in the settings.
 4.  **Test Your Configuration**: Click "Test Connection" to verify your settings and then save them.
-
------
 
 ## core concepts
 
@@ -117,8 +107,6 @@ Context elements provide the AI with plain text information about your applicati
   * **Be Concise**: Only provide information that is relevant to the AI's understanding of the current state.
   * **Update Frequently**: Keep the context current by updating it whenever your application's state changes.
 
------
-
 ## 🚀 Using VOIX
 
   * **Opening the Chat Panel**: Click the VOIX icon in your toolbar and select "Open side panel".
@@ -126,8 +114,6 @@ Context elements provide the AI with plain text information about your applicati
   * **Voice Input**: Click the microphone button to start and stop recording your voice command.
   * **Live Voice Mode**: Click the live voice button for continuous listening and responding.
   * **Thinking Mode**: Click the lightbulb button to see the AI's reasoning process.
-
------
 
 ## 🔒 Privacy & Security
 
