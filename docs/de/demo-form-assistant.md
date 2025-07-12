@@ -3,7 +3,7 @@ layout: doc
 ---
 
 <script setup>
-import FormAssistantDemo from './components/FormAssistantDemo.vue'
+import FormAssistantDemo from '../components/FormAssistantDemo.vue'
 </script>
 
 # Formularassistent-Demo
