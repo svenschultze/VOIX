@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "VOIX Documentation",
-  base: '/voix/',
+  base: '/VOIX/',
   description: "VOIX is a lightweight browser framework that lets you add AI assistants to any website using just HTML. You define tools with <tool> tags and provide state with <context>, and the VOIX Chrome extension turns these into structured API calls the assistant can use—without touching your layout, styles, or data privacy.",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
