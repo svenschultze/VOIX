@@ -1,0 +1,19 @@
+name: Zip voix folder and upload on release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  zip-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Zip voix folder
+        run: zip -r voix.zip voix
+      - name: Upload voix.zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: voix-folder-zip
+          path: voix.zip
