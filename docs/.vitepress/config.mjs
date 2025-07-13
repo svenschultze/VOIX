@@ -58,16 +58,13 @@ export default defineConfig({
         ]
       }
     ],
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/svenschultze/voix-chrome' }
     ],
-    
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present Sven Schultze'
+      copyright: 'Copyright © 2025 Sven Schultze'
     },
-
     localeLinks: {
       text: 'English',
       items: [
