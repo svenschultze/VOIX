@@ -55,7 +55,8 @@ export default defineConfig({
           { text: 'Form Assistant', link: '/demo-form-assistant' },
           { text: 'Navigation Helper', link: '/demo-navigation' },
           { text: 'Data Table', link: '/demo-data-table' },
-          { text: 'Weather', link: '/demo-weather' }
+          { text: 'Weather', link: '/demo-weather' },
+          { text: 'Code Editor', link: '/demo-code-editor' }
         ]
       }
     ],
@@ -122,7 +123,8 @@ export default defineConfig({
               { text: 'Formularassistent', link: '/de/demo-form-assistant' },
               { text: 'Navigationshelfer', link: '/de/demo-navigation' },
               { text: 'Datentabelle', link: '/de/demo-data-table' },
-              { text: 'Wetter', link: '/de/demo-weather' }
+              { text: 'Wetter', link: '/de/demo-weather' },
+              { text: 'Code-Editor', link: '/de/demo-code-editor' }
             ]
           }
         ],
