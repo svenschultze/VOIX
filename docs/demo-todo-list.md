@@ -25,5 +25,5 @@ Try these with VOIX:
 - "Add 'Write tests' as a low priority task"
 - "Clear all completed tasks"
 
-### Grocery List:
+### TODO List:
 <TodoDemo />

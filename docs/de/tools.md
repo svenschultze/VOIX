@@ -21,6 +21,10 @@ Werkzeuge deklarieren Aktionen, die die KI auf Ihrer Website ausführen kann. Si
 - Klare Erklärung, was das Werkzeug tut
 - Hilft der KI zu verstehen, wann das Werkzeug zu verwenden ist
 - Beispiele: "Eine neue Aufgabe erstellen", "Nach Produkten suchen", "Benutzerstatus aktualisieren"
+- 
+### `return` (optional)
+- Gibt an, dass das Werkzeug Daten an die KI zurückgibt
+- Falls vorhanden, wartet VOIX auf ein `return`-Event, bevor es fortfährt
 
 ## Parameter definieren
 
@@ -78,30 +82,64 @@ document.querySelector('[name=search_products]').addEventListener('call', async 
   updateUI(results);
 });
 ```
+## Werkzeuge, die Daten zurückgeben
 
-### Muster für mehrere Werkzeuge
+Manchmal besteht der Hauptzweck eines Werkzeugs darin, *Informationen an die KI zurückzusenden* – entweder zusätzlich oder anstelle einer UI-Aktualisierung.
+Fügen Sie dazu das `return`-Attribut zum `<tool>`-Element hinzu und lösen Sie ein **`return`**-Custom-Event aus.
+
+```html
+<tool name="get_weather" description="Aktuelle Wetterdaten abrufen" return>
+  <prop name="location" type="string" required/>
+</tool>
+```
+
+Das `return`-Attribut (ohne Wert) signalisiert VOIX, dass das Werkzeug Daten zurückgeben **wird**. VOIX wartet dann auf ein `return`-Event, bevor es der KI antwortet.
+
+### Ein `return`-Event auslösen
+
+Verpacken Sie die gewünschten Daten im `detail` des Events und lösen Sie das `return`-Event auf demselben Element aus:
 
 ```javascript
-const handlers = {
-  create_task: async ({ title, description }) => {
-    const task = await createTask(title, description);
-    updateTaskList();
-  },
-  
-  delete_task: async ({ taskId }) => {
-    await deleteTask(taskId);
-    updateTaskList();
-  }
-};
+document
+  .querySelector('[name=get_weather]')
+  .addEventListener('call', async (e) => {
+    const { location } = e.detail;
+    const weather = await fetchWeather(location);   // Ihre Logik zum Abrufen der Daten
 
-// Handler an alle Werkzeuge anhängen
-document.querySelectorAll('tool[name]').forEach(tool => {
-  const name = tool.getAttribute('name');
-  tool.addEventListener('call', async (event) => {
-    await handlers[name]?.(event.detail);
+    // Wetterdaten an die KI zurückgeben
+    e.target.dispatchEvent(
+      new CustomEvent('return', { detail: weather })
+    );
+
+    // (Optional) UI für den Nutzer wie gewohnt aktualisieren
+    updateWeatherWidget(weather);
   });
+```
+
+Sie können so auch Erfolgs- oder Fehlermeldungen zurückgeben:
+
+```javascript
+document.querySelector('[name=submit_form]').addEventListener('call', async (e) => {
+  try {
+    const response = await submitForm(e.detail);
+    
+    // KI über Erfolg informieren
+    e.target.dispatchEvent(new CustomEvent('return', {
+      detail: { success: true, message: 'Formular erfolgreich gesendet.' }
+    }));
+  } catch (error) {
+    // KI über Fehler informieren
+    e.target.dispatchEvent(new CustomEvent('return', {
+      detail: { success: false, error: error.message }
+    }));
+  }
 });
 ```
+
+---
+
+Mit dem `return`-Attribut und dem `return`-Event können Sie Werkzeuge bauen, die *APIs abfragen, Berechnungen durchführen oder Kontext sammeln* und die Ergebnisse direkt an die KI zurückgeben – für reichhaltigere, datengetriebene Interaktionen.
+
 
 ## Allgemeine Beispiele
 
