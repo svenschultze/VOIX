@@ -984,7 +984,7 @@ class VOIXSidePanel {
         html += `
           <div class="resources-section">
             <div class="resources-section-header">
-              <span class="resources-section-title">📄 Resources (${contextArr.length})</span>
+              <span class="resources-section-title">📄 Context (${contextArr.length})</span>
             </div>
             <div class="resources-list">
         `;
@@ -1002,7 +1002,7 @@ class VOIXSidePanel {
               <span class="resource-icon">${this.getResourceIcon(resourceType)}</span>
               <div class="resource-info">
                 <div class="resource-name">${resource.name || resource.uri}</div>
-                <div class="resource-preview">${preview ? this.escapeHtml(preview) : '<em>No content</em>'}</div>
+                <div class="resource-preview" title="${resource.content}">${preview ? this.escapeHtml(preview) : '<em>No content</em>'}</div>
               </div>
             </div>
           `;

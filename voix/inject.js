@@ -26,7 +26,55 @@ function simplifyHtmlElement(element) {
 
   return element;
 }
+class CallEvent {
+  /**
+   * Dispatches an event. If the target has a 'data-await-response' attribute,
+   * it waits for the next 'call-response' event from that target.
+   *
+   * @param {EventTarget} target - The DOM element to dispatch the event on.
+   * @param {object} args - The data payload to send to the listener.
+   * @returns {Promise<any>|void} A promise if awaiting response, otherwise void.
+   */
+  static dispatch(target, args) {
+    const shouldWaitForResponse = target.hasAttribute('return');
+    console.log(`Dispatching CallEvent to target: ${target.tagName}, should wait for response: ${shouldWaitForResponse}`, args);
 
+    // --- Fire-and-Forget Pattern ---
+    if (!shouldWaitForResponse) {
+      target.dispatchEvent(new CustomEvent('call', {
+        bubbles: true,
+        composed: true,
+        detail: args
+      }));
+      return new Promise((resolve) => {
+        // Resolve immediately since we're not waiting for a response
+        resolve({ success: true, message: 'Tool called successfully.' });
+      })
+    }
+
+    // --- Request/Response Pattern (Simplified) ---
+    return new Promise((resolve, reject) => {
+      const responseHandler = (event) => {
+        // Since there's no ID, this handler will accept the first response.
+        target.removeEventListener('return', responseHandler);
+        if (event.detail.error) {
+          reject(event.detail);
+        } else {
+          resolve(event.detail);
+        }
+      };
+
+      // Listen for the next 'call-response' from this target.
+      target.addEventListener('return', responseHandler, { once: true });
+      
+      target.dispatchEvent(new CustomEvent('call', {
+        bubbles: true,
+        composed: true,
+        detail: args
+      }));
+    });
+  }
+}
 
 console.log('Injecting MCP Server into page');
 (function() {
@@ -163,21 +211,20 @@ console.log('Injecting MCP Server into page');
           }
         }
         if (!toolElement) throw new Error(`Tool ${toolName} not found`);
-        const event = new CustomEvent('call', { detail: args, bubbles: true });
-        if (args && typeof args === 'object') {
-          for (const [key, value] of Object.entries(args)) {
-            toolElement.setAttribute(`arg-${key}`, String(value));
-          }
-        }
-        toolElement.dispatchEvent(event);
+        const event = await CallEvent.dispatch(toolElement, args);
+
+        console.log(`Dispatched CallEvent for tool: ${toolName}`, event);
+
         // Notify sidepanel and other extension pages that a tool was called
         chrome.runtime.sendMessage({
           type: 'MCP_CALL_TOOL',
           toolName,
           arguments: args
         });
-        return { success: true, result: `Tool ${toolName} executed successfully` };
+
+        return event;
       } catch (error) {
+        console.error('Error calling tool:', error);
         return { success: false, error: error.message };
       }
     }

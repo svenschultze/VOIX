@@ -208,12 +208,13 @@ export async function handleLLMRequest(message) {
             toolName,
             arguments: args
           });
+          console.log(`Tool ${toolName} executed with result:`, toolResult);
           // Add tool result as a tool message to the conversation
           conversationHistory.push({
             role: 'tool',
             name: toolName,
             tool_call_id: toolCall.id,
-            content: JSON.stringify(toolResult)
+            content: `Executed tool: ${toolName}: ${JSON.stringify(toolResult)}`,
           });
           toolResults.push({
             tool_call_id: toolCall.id,
