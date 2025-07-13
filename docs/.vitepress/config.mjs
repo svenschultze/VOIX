@@ -54,7 +54,8 @@ export default defineConfig({
           { text: 'Product Search', link: '/demo-product-search' },
           { text: 'Form Assistant', link: '/demo-form-assistant' },
           { text: 'Navigation Helper', link: '/demo-navigation' },
-          { text: 'Data Table', link: '/demo-data-table' }
+          { text: 'Data Table', link: '/demo-data-table' },
+          { text: 'Weather', link: '/demo-weather' }
         ]
       }
     ],
@@ -120,7 +121,8 @@ export default defineConfig({
               { text: 'Produktsuche', link: '/de/demo-product-search' },
               { text: 'Formularassistent', link: '/de/demo-form-assistant' },
               { text: 'Navigationshelfer', link: '/de/demo-navigation' },
-              { text: 'Datentabelle', link: '/de/demo-data-table' }
+              { text: 'Datentabelle', link: '/de/demo-data-table' },
+              { text: 'Wetter', link: '/de/demo-weather' }
             ]
           }
         ],
