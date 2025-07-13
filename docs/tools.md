@@ -22,6 +22,10 @@ Tools declare actions that the AI can perform on your website. They define what 
 - Helps AI understand when to use the tool
 - Examples: "Create a new task", "Search for products", "Update user status"
 
+### `return` (optional)
+- Indicates that the tool will return data to the AI
+- If present, VOIX waits for a `return` event before proceeding
+
 ## Defining Parameters
 
 Tools use `<prop>` elements to define parameters:
@@ -79,29 +83,64 @@ document.querySelector('[name=search_products]').addEventListener('call', async 
 });
 ```
 
-### Multiple Tools Pattern
+## Tools That Return Data
+
+Sometimes a tool’s primary purpose is to *send information back* to the AI rather than (or in addition to) updating the UI.
+To enable this, add the `return` flag to the `<tool>` element and dispatch a **`return`** custom event.
+
+```html
+<tool name="get_weather" description="Retrieve current weather data" return>
+  <prop name="location" type="string" required/>
+</tool>
+```
+
+Adding the `return` attribute (no value needed) tells VOIX that the tool **will** emit data for the AI to consume. This means VOIX will wait for a `return` event before proceeding to respond.
+
+### Dispatching a `return` Event
+
+Inside your event handler, package the data you want the AI to see in the event’s `detail`, then dispatch a `return` event on the same element:
 
 ```javascript
-const handlers = {
-  create_task: async ({ title, description }) => {
-    const task = await createTask(title, description);
-    updateTaskList();
-  },
-  
-  delete_task: async ({ taskId }) => {
-    await deleteTask(taskId);
-    updateTaskList();
-  }
-};
+document
+  .querySelector('[name=get_weather]')
+  .addEventListener('call', async (e) => {
+    const { location } = e.detail;
+    const weather = await fetchWeather(location);   // your data-fetching logic
 
-// Attach handlers to all tools
-document.querySelectorAll('tool[name]').forEach(tool => {
-  const name = tool.getAttribute('name');
-  tool.addEventListener('call', async (event) => {
-    await handlers[name]?.(event.detail);
+    // Send the weather data back to the AI
+    e.target.dispatchEvent(
+      new CustomEvent('return', { detail: weather })
+    );
+
+    // (Optional) update the UI for the user as usual
+    updateWeatherWidget(weather);
   });
+```
+
+This can also be used to return success or error messages:
+
+```javascript
+document.querySelector('[name=submit_form]').addEventListener('call', async (e) => {
+  try {
+    const response = await submitForm(e.detail);
+    
+    // Notify AI of success
+    e.target.dispatchEvent(new CustomEvent('return', {
+      detail: { success: true, message: 'Form submitted successfully.' }
+    }));
+  } catch (error) {
+    // Notify AI of failure
+    e.target.dispatchEvent(new CustomEvent('return', {
+      detail: { success: false, error: error.message }
+    }));
+  }
 });
 ```
+
+---
+
+With the `return` flag and the `return` event, you can build tools that *query APIs, perform calculations, or gather context* and pass those results straight back to the AI—enabling richer, data-driven conversations.
+
 
 ## Common Examples
 

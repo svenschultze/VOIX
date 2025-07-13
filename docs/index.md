@@ -36,14 +36,3 @@ features:
     details: VOIX is a proposed open standard, not a platform. This fosters a competitive ecosystem of user agents and prevents vendor lock-in for developers and users.
     link: /vision
 ---
-
-<style>
-.tagline code {
-  border-radius: 4px;
-  padding: 3px 6px;
-  background-color: var(--vp-code-bg);
-  transition: color 0.25s, background-color 0.5s;
-  color: var(--vp-code-color);
-  font-size: 0.9em;
-}
-</style>
