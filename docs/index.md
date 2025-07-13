@@ -19,29 +19,31 @@ hero:
       link: /core-concepts
 
 features:
-  - icon: 🚀
-    title: Easy Integration
-    details: Add AI capabilities to any website with simple HTML tags. No complex setup or API integration required.
+  - icon: 💡
+    title: Simplified AI Integration
+    details: Expose your website's functionality to AI assistants using simple HTML tags. No backend changes, no complex SDKs, and no API maintenance.
     link: /getting-started
-  - icon: 🛠️
-    title: Powerful Tools
-    details: Define custom tools that let AI interact with your application through a declarative, HTML-based API.
-    link: /tools
-  - icon: 🔧
-    title: Flexible Configuration
-    details: Support for multiple AI providers including OpenAI, Anthropic, Azure, and local models with Ollama.
-    link: /getting-started
-  - icon: 📊
-    title: Context Awareness
-    details: Provide real-time application state to AI for intelligent, contextual responses.
-    link: /context
-  - icon: 🎯
-    title: Framework Agnostic
-    details: Works with React, Vue, Svelte, or vanilla JavaScript. Complete examples for all major frameworks.
-    link: /core-concepts
   - icon: 🔒
-    title: Privacy First
-    details: All data stays local in your browser. No tracking, no data collection, complete user control.
-    link: /core-concepts
+    title: Privacy by Design
+    details: Users connect their own AI models. All data processing and conversation history stay private within the user's browser, never touching the website's servers.
+    link: /vision
+  - icon: 👑
+    title: User Sovereignty
+    details: Users are in complete control. They choose their AI provider (OpenAI, Anthropic, local models), their interface, and how they interact with your site.
+    link: /vision
+  - icon: 🌐
+    title: Open & Decentralized
+    details: VOIX is a proposed open standard, not a platform. This fosters a competitive ecosystem of user agents and prevents vendor lock-in for developers and users.
+    link: /vision
 ---
 
+<style>
+code {
+  border-radius: 4px;
+  padding: 3px 6px;
+  background-color: var(--vp-code-bg);
+  transition: color 0.25s, background-color 0.5s;
+  color: var(--vp-code-color);
+  font-size: 0.9em;
+}
+</style>

@@ -19,29 +19,21 @@ hero:
       link: /de/core-concepts
 
 features:
-  - icon: 🚀
-    title: Einfache Integration
-    details: Fügen Sie jeder Website mit einfachen HTML-Tags KI-Funktionen hinzu. Keine komplexe Einrichtung oder API-Integration erforderlich.
+  - icon: 💡
+    title: Vereinfachte KI-Integration
+    details: Stellen Sie die Funktionalität Ihrer Website für KI-Assistenten mit einfachen HTML-Tags bereit. Keine Backend-Änderungen, keine komplexen SDKs und keine API-Wartung.
     link: /de/getting-started
-  - icon: 🛠️
-    title: Leistungsstarke Werkzeuge
-    details: Definieren Sie benutzerdefinierte Werkzeuge, mit denen die KI über eine deklarative, HTML-basierte API mit Ihrer Anwendung interagieren kann.
-    link: /de/tools
-  - icon: 🔧
-    title: Flexible Konfiguration
-    details: Unterstützung für mehrere KI-Anbieter, einschließlich OpenAI, Anthropic, Azure und lokale Modelle mit Ollama.
-    link: /de/getting-started
-  - icon: 📊
-    title: Kontextbewusstsein
-    details: Stellen Sie der KI den Anwendungszustand in Echtzeit zur Verfügung, um intelligente, kontextbezogene Antworten zu erhalten.
-    link: /de/context
-  - icon: 🎯
-    title: Framework-unabhängig
-    details: Funktioniert mit React, Vue, Svelte oder reinem JavaScript. Vollständige Beispiele für alle wichtigen Frameworks.
-    link: /de/core-concepts
   - icon: 🔒
-    title: Datenschutz an erster Stelle
-    details: Alle Daten bleiben lokal in Ihrem Browser. Kein Tracking, keine Datenerfassung, vollständige Benutzerkontrolle.
-    link: /de/core-concepts
+    title: Datenschutz durch Design
+    details: Benutzer verbinden ihre eigenen KI-Modelle. Alle Datenverarbeitung und der Gesprächsverlauf bleiben privat im Browser des Benutzers und berühren niemals die Server der Website.
+    link: /de/vision
+  - icon: 👑
+    title: Benutzersouveränität
+    details: Benutzer haben die vollständige Kontrolle. Sie wählen ihren KI-Anbieter (OpenAI, Anthropic, lokale Modelle), ihre Benutzeroberfläche und wie sie mit Ihrer Website interagieren.
+    link: /de/vision
+  - icon: 🌐
+    title: Offen & Dezentralisiert
+    details: VOIX ist ein vorgeschlagener offener Standard, keine Plattform. Dies fördert ein wettbewerbsfähiges Ökosystem von Benutzeragenten und verhindert eine Herstellerbindung für Entwickler und Benutzer.
+    link: /de/vision
 ---
 
