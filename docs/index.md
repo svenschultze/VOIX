@@ -38,7 +38,7 @@ features:
 ---
 
 <style>
-code {
+.tagline code {
   border-radius: 4px;
   padding: 3px 6px;
   background-color: var(--vp-code-bg);
