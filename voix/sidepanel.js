@@ -1001,8 +1001,10 @@ class VOIXSidePanel {
             <div class="resource-item ${resourceType}">
               <span class="resource-icon">${this.getResourceIcon(resourceType)}</span>
               <div class="resource-info">
-                <div class="resource-name">${resource.name || resource.uri}</div>
-                <div class="resource-preview" title="${resource.content}">${preview ? this.escapeHtml(preview) : '<em>No content</em>'}</div>
+                <details class="resource-details">
+                  <summary class="resource-summary">${resource.name || resource.uri}</summary>
+                  <pre style="margin-top: -40px;"><code>${resource.content}</code></pre>
+                </details>
               </div>
             </div>
           `;
