@@ -1,3 +1,4 @@
+<!-- #region context -->
 # Svelte Integration Guide
 
 > [!CAUTION]
@@ -351,3 +352,9 @@ test('handles refresh tool', async () => {
 ```
 
 This guide covers the essential patterns for integrating VOIX with Svelte 5 applications using Runes, focusing on practical examples and clean code practices.
+
+
+<!-- #endregion context -->
+
+
+<!--@include: @/voix_context.md -->

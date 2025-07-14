@@ -1,3 +1,4 @@
+<!-- #region context -->
 # Getting Started with VOIX
 
 ## Installation
@@ -169,3 +170,8 @@ If you see "Failed to connect to API":
 
 - Learn about [Core Concepts](./core-concepts.md) to understand how VOIX works
 - Explore [Tools](./tools.md) to build VOIX-compatible websites
+
+<!-- #region endcontext -->
+
+
+<!--@include: @/voix_context.md -->

@@ -1,3 +1,4 @@
+<!-- #region context -->
 # Vue.js Integration Guide
 
 This guide covers advanced patterns and best practices for integrating VOIX with Vue.js applications, including component-level tools, dynamic context management, and Vue-specific optimizations.
@@ -263,3 +264,7 @@ it('handles tool calls', async () => {
 ```
 
 This guide covers the essential patterns for integrating VOIX with Vue.js applications, focusing on practical examples and clean code practices.
+<!-- #endregion context -->
+
+
+<!--@include: @/voix_context.md -->

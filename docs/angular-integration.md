@@ -418,3 +418,7 @@ describe('DashboardComponent', () => {
 ```
 
 This guide covers the essential patterns for integrating VOIX with Angular applications, focusing on practical examples and clean code practices.
+
+
+
+<!--@include: @/voix_context.md -->

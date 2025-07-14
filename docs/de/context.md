@@ -211,3 +211,6 @@ Kontextelemente sind einfache Container für einfachen Text, der der KI hilft, d
 
 - Erfahren Sie mehr über [Werkzeuge](./tools.md) zum Erstellen interaktiver Werkzeuge
 - Lesen Sie die [Ersten Schritte](./getting-started.md) für Einrichtungsanweisungen
+
+
+<!--@include: @/voix_context.md -->

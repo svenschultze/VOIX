@@ -169,3 +169,5 @@ Wenn Sie "Verbindung zur API fehlgeschlagen" sehen:
 
 - Erfahren Sie mehr über [Kernkonzepte](./core-concepts.md), um zu verstehen, wie VOIX funktioniert
 - Erkunden Sie [Werkzeuge](./tools.md), um VOIX-kompatible Websites zu erstellen
+
+<!--@include: @/voix_context.md -->

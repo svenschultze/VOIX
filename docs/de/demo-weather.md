@@ -25,3 +25,5 @@ import WeatherDemo from "../components/WeatherDemo.vue";
 ## Code
 
 <<< @/components/WeatherDemo.vue
+
+<!--@include: @/voix_context.md -->

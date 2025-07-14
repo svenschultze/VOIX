@@ -263,3 +263,5 @@ it('behandelt Werkzeugaufrufe', async () => {
 ```
 
 Dieses Handbuch behandelt die wesentlichen Muster für die Integration von VOIX in Vue.js-Anwendungen, wobei der Schwerpunkt auf praktischen Beispielen und sauberen Codierungspraktiken liegt.
+
+<!--@include: @/voix_context.md -->

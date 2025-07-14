@@ -1,3 +1,4 @@
+<!-- #region context -->
 # The VOIX Vision
 
 ## A New Paradigm for Web-AI Interaction
@@ -204,3 +205,8 @@ VOIX envisions a web where:
 This isn't just about making websites work with AI—it's about preserving the open, decentralized nature of the web in the age of artificial intelligence. Just as the web democratized publishing, VOIX can democratize AI integration, ensuring that the future of web-AI interaction remains open, private, and user-controlled.
 
 The revolution doesn't require everyone to switch at once. It starts with a single `<tool>` tag, one website at a time, building toward a future where AI assistance is as natural and universal as hyperlinks—and just as decentralized.
+
+<!-- #endregion context -->
+
+
+<!--@include: @/voix_context.md -->

@@ -379,3 +379,5 @@ Try these with VOIX:
 - "Toggle the menu"
 
 The AI reads the navigation context to understand available pages and current location.
+
+<!--@include: @/voix_context.md -->

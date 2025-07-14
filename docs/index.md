@@ -36,3 +36,5 @@ features:
     details: VOIX is a proposed open standard, not a platform. This fosters a competitive ecosystem of user agents and prevents vendor lock-in for developers and users.
     link: /vision
 ---
+
+<!--@include: @/voix_context.md -->

@@ -268,3 +268,5 @@ Versuchen Sie dies mit VOIX:
 - "Alle Filter löschen"
 
 Die KI liest den Kontext, um verfügbare Kategorien und aktuelle Filter zu verstehen.
+
+<!--@include: @/voix_context.md -->

@@ -1,3 +1,4 @@
+<!-- #region context -->
 # Context
 
 Context elements provide the AI with information about your application's current state. They contain plain text that helps the AI understand what's happening on the page.
@@ -210,3 +211,8 @@ Context elements are simple containers for plain text that help the AI understan
 
 - Learn about [Tools](./tools.md) for creating interactive tools
 - Review [Getting Started](./getting-started.md) for setup instructions
+
+<!-- #endregion  context -->
+
+
+<!--@include: @/voix_context.md -->

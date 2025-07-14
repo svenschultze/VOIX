@@ -379,3 +379,5 @@ Versuchen Sie dies mit VOIX:
 - "Menü umschalten"
 
 Die KI liest den Navigationskontext, um verfügbare Seiten und den aktuellen Standort zu verstehen.
+
+<!--@include: @/voix_context.md -->

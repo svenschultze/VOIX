@@ -383,3 +383,5 @@ test('behandelt das Aktualisierungswerkzeug', () => {
 ```
 
 Dieses Handbuch behandelt die wesentlichen Muster für die Integration von VOIX in React-Anwendungen, wobei der Schwerpunkt auf praktischen Beispielen und sauberen Codierungspraktiken liegt.
+
+<!--@include: @/voix_context.md -->

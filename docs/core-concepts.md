@@ -1,3 +1,4 @@
+<!-- #region context -->
 # Core Concepts
 
 VOIX enables AI assistants to interact with websites through a simple yet powerful architecture. This guide explains how the different parts work together.
@@ -157,3 +158,8 @@ Each step happens in the browser. The only external dependency is the AI provide
 
 - Learn about [Tools](./tools.md) to create interactive capabilities
 - Understand [Context](./context.md) for sharing application state
+
+<!-- #endregion context -->
+
+
+<!--@include: @/voix_context.md -->

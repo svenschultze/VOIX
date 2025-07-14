@@ -1,3 +1,4 @@
+<!-- #region context -->
 # React Integration Guide
 
 > [!CAUTION]
@@ -383,3 +384,6 @@ test('handles refresh tool', () => {
 ```
 
 This guide covers the essential patterns for integrating VOIX with React applications, focusing on practical examples and clean code practices.
+<!-- #endregion context -->
+
+<!--@include: @/voix_context.md -->

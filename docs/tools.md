@@ -1,3 +1,4 @@
+<!-- #region context -->
 # Tools
 
 Tools declare actions that the AI can perform on your website. They define what the AI can do and what parameters it needs to provide.
@@ -353,3 +354,8 @@ Tools in VOIX are simple HTML elements that declare what actions the AI can perf
 
 - Learn about [Context](./context.md) for providing state information
 - Review [Getting Started](./getting-started.md) for setup instructions
+
+<!-- #endregion context -->
+
+
+<!--@include: @/voix_context.md -->

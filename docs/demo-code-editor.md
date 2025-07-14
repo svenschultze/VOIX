@@ -24,3 +24,5 @@ import CodeEditorDemo from "./components/CodeEditorDemo.vue";
 
 ## Code
 <<< @/components/CodeEditorDemo.vue
+
+<!--@include: @/voix_context.md -->
