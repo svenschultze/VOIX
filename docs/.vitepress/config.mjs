@@ -131,4 +131,12 @@ export default defineConfig({
       }
     }
   },
+  vue: {
+    template: {
+      compilerOptions: {
+        // Vue anweisen, benutzerdefinierte VOIX-Elemente zu ignorieren
+        isCustomElement: (tag) => ['tool', 'prop', 'context', 'array', 'dict'].includes(tag)
+      }
+    }
+  }
 })
