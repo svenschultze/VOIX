@@ -99,20 +99,27 @@ Verwende `async`-Funktionen im `(call)`-Handler für Tools, die Daten abrufen od
 
 ```ts
 async getWeather(event: Event) {
-  const location = (event as CustomEvent<{ location: string }>).detail.location;
-  const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}`);
-  const geoData = await geoRes.json();
+  try {
+    const location = (event as CustomEvent<{ location: string }>).detail.location;
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}`);
+    const geoData = await geoRes.json();
 
-  if (!geoData.results?.length) {
-    return console.error('Ort nicht gefunden');
+    if (!geoData.results?.length) {
+      return console.error('Location not found');
+    }
+
+    const { latitude, longitude, name, country } = geoData.results[0];
+
+    const wxRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m`);
+    const wxData = await wxRes.json();
+
+    const weather = { ...wxData, city: name, country };
+
+    event.target?.dispatchEvent(new CustomEvent('return', { detail: weather }));
+  } catch (error) {
+    console.error('Error fetching weather:', error);
+    event.target?.dispatchEvent(new CustomEvent('return', { detail: { error: error.message } }));
   }
-
-  const { latitude, longitude, name, country } = geoData.results[0];
-
-  const wxRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m`);
-  const wxData = await wxRes.json();
-
-  console.log('Wetterdaten für', name, country, wxData);
 }
 ```
 
