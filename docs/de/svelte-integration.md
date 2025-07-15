@@ -352,4 +352,4 @@ test('behandelt das Aktualisierungswerkzeug', async () => {
 
 Dieses Handbuch behandelt die wesentlichen Muster für die Integration von VOIX in Svelte 5-Anwendungen unter Verwendung von Runes, wobei der Schwerpunkt auf praktischen Beispielen und sauberen Codierungspraktiken liegt.
 
-<!--@include: @/voix_context.md -->
+<!--@include: @/de/voix_context.md -->

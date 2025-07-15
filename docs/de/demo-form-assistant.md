@@ -321,5 +321,3 @@ Versuchen Sie dies mit VOIX:
 - "Formular absenden"
 
 Die KI liest den Formularkontext, um erforderliche Felder und Validierungsregeln zu verstehen.
-
-<!--@include: @/voix_context.md -->

@@ -27,5 +27,3 @@ Try these with VOIX:
 
 ### TODO List:
 <TodoDemo />
-
-<!--@include: @/voix_context.md -->

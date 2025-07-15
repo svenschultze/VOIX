@@ -205,4 +205,4 @@ Es geht nicht nur darum, Websites mit KI zum Laufen zu bringen – es geht darum
 
 Die Revolution erfordert nicht, dass alle auf einmal umsteigen. Sie beginnt mit einem einzigen `<tool>`-Tag, eine Website nach der anderen, und baut auf eine Zukunft hin, in der KI-Unterstützung so natürlich und universell ist wie Hyperlinks – und genauso dezentral.
 
-<!--@include: @/voix_context.md -->
+<!--@include: @/de/voix_context.md -->

@@ -411,6 +411,3 @@ Versuchen Sie dies mit VOIX:
 - "Tabelle zurücksetzen"
 
 Die KI liest den Tabellenkontext, um verfügbare Spalten, aktuelle Filter und Daten zu verstehen.
-
-
-<!--@include: @/voix_context.md -->

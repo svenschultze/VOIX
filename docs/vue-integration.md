@@ -1,13 +1,12 @@
-<!-- #region context -->
 # Vue.js Integration Guide
 
-This guide covers advanced patterns and best practices for integrating VOIX with Vue.js applications, including component-level tools, dynamic context management, and Vue-specific optimizations.
+This guide covers advanced patterns and best practices for integrating VOIX with Vue.js applications, including component-level tools, dynamic context management, and Vue-specific optimizations. This guide uses the idiomatic `@call` syntax for handling tool events.
 
 ## Configuration
 
 ### Vite Configuration
 
-First, configure Vite to recognize VOIX custom elements:
+First, configure Vite to recognize VOIX custom elements. This step is crucial for Vue to correctly interpret the custom tags in your templates.
 
 ```javascript
 // vite.config.js
@@ -26,11 +25,11 @@ export default defineConfig({
     })
   ]
 })
-```
+````
 
 ### Global Styles
 
-Add these styles to hide VOIX elements from the UI:
+To ensure that VOIX elements do not interfere with your application's layout, add the following CSS to your global stylesheet.
 
 ```css
 /* App.vue or global styles */
@@ -41,38 +40,38 @@ tool, prop, context, array, dict {
 
 ## Component-Level Tools
 
-Define tools at the component level for better encapsulation:
+Defining tools within your components encapsulates functionality and keeps your code organized. By using the `@call` event binding, you can directly link a tool to its handler method in your script.
 
 ```vue
 <template>
   <div class="user-profile">
     <h2>{{ user.name }}'s Profile</h2>
-    
-    <!-- Component-specific tools -->
-    <tool 
-      :name="`update_${userId}_profile`" 
+
+    <!-- Component-specific tools with @call event handlers -->
+    <tool
+      :name="`update_${userId}_profile`"
       description="Update this user's profile"
-      ref="updateTool"
+      @call="handleUpdateProfile"
     >
       <prop name="field" type="string" required description="name, email, or bio"/>
       <prop name="value" type="string" required/>
     </tool>
-    
-    <tool 
-      :name="`toggle_${userId}_notifications`" 
+
+    <tool
+      :name="`toggle_${userId}_notifications`"
       description="Toggle email notifications"
-      ref="notificationTool"
+      @call="handleToggleNotifications"
     >
     </tool>
-    
-    <!-- Component context with multiple interpolations -->
+
+    <!-- Context automatically reflects reactive state -->
     <context :name="`user_${userId}_state`">
       Name: {{ user.name }}
       Email: {{ user.email }}
       Bio: {{ user.bio }}
       Notifications: {{ user.notifications ? 'Enabled' : 'Disabled' }}
     </context>
-    
+
     <!-- Regular UI -->
     <div class="profile-details">
       <p>Email: {{ user.email }}</p>
@@ -83,7 +82,7 @@ Define tools at the component level for better encapsulation:
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
   userId: {
@@ -99,13 +98,10 @@ const user = ref({
   notifications: true
 })
 
-const updateTool = ref(null)
-const notificationTool = ref(null)
-
 // Tool handlers
-const handleUpdateProfile = (event) => {
+function handleUpdateProfile(event) {
   const { field, value } = event.detail
-  
+
   if (field in user.value) {
     user.value[field] = value
     event.detail.success = true
@@ -116,22 +112,11 @@ const handleUpdateProfile = (event) => {
   }
 }
 
-const handleToggleNotifications = (event) => {
+function handleToggleNotifications(event) {
   user.value.notifications = !user.value.notifications
   event.detail.success = true
   event.detail.message = `Notifications ${user.value.notifications ? 'enabled' : 'disabled'}`
 }
-
-// Lifecycle management
-onMounted(() => {
-  updateTool.value?.addEventListener('call', handleUpdateProfile)
-  notificationTool.value?.addEventListener('call', handleToggleNotifications)
-})
-
-onBeforeUnmount(() => {
-  updateTool.value?.removeEventListener('call', handleUpdateProfile)
-  notificationTool.value?.removeEventListener('call', handleToggleNotifications)
-})
 </script>
 ```
 
@@ -139,19 +124,27 @@ onBeforeUnmount(() => {
 
 ### Unique Tool Names
 
-Tools must have unique names across your application. When using multiple instances of the same component, include an identifier:
+All tools in your application must have a unique `name`. When creating reusable components that contain tools, incorporate a unique identifier (like a prop) into the tool's name to prevent conflicts.
 
 ```vue
 <template>
   <div class="product-card">
-    <!-- Include product ID in tool name to ensure uniqueness -->
-    <tool :name="`add_to_cart_${product.id}`" description="Add this product to cart">
+    <!-- Bind the product ID to the tool name for uniqueness -->
+    <tool
+      :name="`add_to_cart_${product.id}`"
+      description="Add this product to the cart"
+      @call="handleAddToCart"
+    >
       <prop name="quantity" type="number" required/>
     </tool>
-    
-    <tool :name="`toggle_favorite_${product.id}`" description="Toggle favorite status">
+
+    <tool
+      :name="`toggle_favorite_${product.id}`"
+      description="Toggle the favorite status of this product"
+      @call="handleToggleFavorite"
+    >
     </tool>
-    
+
     <h3>{{ product.name }}</h3>
     <button @click="addToCart">Add to Cart</button>
   </div>
@@ -164,26 +157,54 @@ const props = defineProps({
     required: true
   }
 })
+
+function handleAddToCart(event) {
+  const { quantity } = event.detail;
+  // Your logic to add the product to the cart
+  console.log(`Adding ${quantity} of product ${props.product.id} to cart.`);
+  event.detail.success = true;
+  event.detail.message = `Added ${quantity} of ${props.product.name} to your cart.`;
+}
+
+function handleToggleFavorite(event) {
+  // Your logic to toggle favorite status
+  console.log(`Toggling favorite for product ${props.product.id}.`);
+  event.detail.success = true;
+}
+
+function addToCart() {
+  // Your logic for the regular button click
+  console.log(`Button clicked to add product ${props.product.id} to cart.`);
+}
 </script>
 ```
 
 ### Conditional Tool Availability
 
-Show tools based on user permissions:
+You can use `v-if` to conditionally render tools based on application state, such as user roles or permissions. This ensures that tools are only available to the AI when they are relevant and authorized.
 
 ```vue
 <template>
   <div>
-    <!-- Admin tools only visible to admins -->
-    <tool v-if="user.isAdmin" name="delete_users" description="Delete selected users">
+    <!-- Admin tools are only rendered if the user is an admin -->
+    <tool
+      v-if="user.isAdmin"
+      name="delete_users"
+      description="Delete selected users"
+      @call="handleDeleteUsers"
+    >
       <prop name="userIds" type="array" required/>
     </tool>
-    
-    <!-- Available to all users -->
-    <tool name="export_data" description="Export your data">
+
+    <!-- This tool is available to all users -->
+    <tool
+      name="export_data"
+      description="Export your data"
+      @call="handleExportData"
+    >
       <prop name="format" type="string" description="csv or json"/>
     </tool>
-    
+
     <context name="permissions">
       Role: {{ user.role }}
       Admin: {{ user.isAdmin ? 'Yes' : 'No' }}
@@ -194,24 +215,47 @@ Show tools based on user permissions:
 <script setup>
 import { useUserStore } from '@/stores/user'
 const user = useUserStore()
+
+function handleDeleteUsers(event) {
+  const { userIds } = event.detail;
+  // Logic to delete users
+  console.log('Deleting users:', userIds);
+  event.detail.success = true;
+  event.detail.message = `Successfully deleted ${userIds.length} users.`;
+}
+
+function handleExportData(event) {
+  const { format } = event.detail;
+  // Logic to export data
+  console.log('Exporting data as:', format);
+  event.detail.success = true;
+}
 </script>
 ```
 
 ### Real-Time Updates
 
-Update context automatically when data changes:
+Vue's reactivity system makes it easy to keep `<context>` elements up-to-date. Simply bind your reactive data within the context tag, and it will automatically update whenever the data changes.
 
 ```vue
 <template>
   <div class="dashboard">
-    <!-- Context updates automatically with reactive data -->
+    <!-- This context automatically updates when its content changes -->
     <context name="metrics">
       Users online: {{ onlineUsers }}
       Last update: {{ lastUpdate }}
     </context>
-    
-    <tool name="refresh_data" description="Refresh dashboard data">
+
+    <tool
+      name="refresh_data"
+      description="Manually refresh dashboard data"
+      @call="refreshData"
+    >
     </tool>
+
+    <h3>Dashboard</h3>
+    <p>Users Online: {{ onlineUsers }}</p>
+    <p>Last Update: {{ lastUpdate }}</p>
   </div>
 </template>
 
@@ -221,50 +265,19 @@ import { ref, onMounted } from 'vue'
 const onlineUsers = ref(0)
 const lastUpdate = ref(new Date().toLocaleTimeString())
 
-// Simulate real-time updates
+function refreshData(event) {
+  onlineUsers.value = Math.floor(Math.random() * 100)
+  lastUpdate.value = new Date().toLocaleTimeString()
+  if (event) {
+    event.detail.success = true;
+    event.detail.message = "Dashboard data has been refreshed.";
+  }
+}
+
+// Simulate real-time updates from a server
 onMounted(() => {
-  setInterval(() => {
-    onlineUsers.value = Math.floor(Math.random() * 100)
-    lastUpdate.value = new Date().toLocaleTimeString()
-  }, 5000)
+  setInterval(refreshData, 5000)
 })
 </script>
 ```
-
-## Testing
-
-Create test utilities for VOIX tools:
-
-```javascript
-// test-utils/voix.js
-export function triggerTool(toolName, params) {
-  const tool = document.querySelector(`[name="${toolName}"]`)
-  const event = new CustomEvent('call', {
-    detail: { ...params }
-  })
-  
-  tool.dispatchEvent(event)
-  
-  return event.detail
-}
-
-// component.test.js
-import { mount } from '@vue/test-utils'
-import { triggerTool } from '@/test-utils/voix'
-
-it('handles tool calls', async () => {
-  const wrapper = mount(MyComponent)
-  await wrapper.vm.$nextTick()
-  
-  const result = triggerTool('my_tool', { value: 'test' })
-  
-  expect(result.success).toBe(true)
-  expect(result.message).toBe('Success')
-})
-```
-
-This guide covers the essential patterns for integrating VOIX with Vue.js applications, focusing on practical examples and clean code practices.
-<!-- #endregion context -->
-
-
 <!--@include: @/voix_context.md -->

@@ -411,7 +411,3 @@ Try these with VOIX:
 - "Reset the table"
 
 The AI reads the table context to understand available columns, current filters, and data.
-
-
-
-<!--@include: @/voix_context.md -->

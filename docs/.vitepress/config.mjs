@@ -35,7 +35,7 @@ export default defineConfig({
         items: [
           { text: 'Core Concepts', link: '/core-concepts' },
           { text: 'Tools', link: '/tools' },
-          { text: 'Context', link: '/context' }
+          { text: 'Contexts', link: '/contexts' }
         ]
       },
       {
@@ -103,7 +103,7 @@ export default defineConfig({
             items: [
               { text: 'Kernkonzepte', link: '/de/core-concepts' },
               { text: 'Werkzeuge', link: '/de/tools' },
-              { text: 'Kontext', link: '/de/context' }
+              { text: 'Kontexte', link: '/de/contexts' }
             ]
           },
           {

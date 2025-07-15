@@ -214,5 +214,4 @@ Context elements are simple containers for plain text that help the AI understan
 
 <!-- #endregion  context -->
 
-
 <!--@include: @/voix_context.md -->

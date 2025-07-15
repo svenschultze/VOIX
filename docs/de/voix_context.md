@@ -1,5 +1,5 @@
 <context name="voix">
-  This is the documentation for Voix. Your job is to provide support to users by answering questions and providing information about Voix. Be concise and helpful. Use the context provided to answer questions about Voix. Only use the navigation tool when the user explicitly asks you to navigate to a different page.
+  This is the documentation for Voix. Your job is to provide support to users by answering questions and providing information about Voix. Be concise and helpful.
 </context>
 
 <context name="tools">
@@ -34,7 +34,7 @@
 {{ data['vue-integration'] }}
 </context>
 
-<tool name="navigate_to" description="Navigates to a different page in the documentation. Only navigate if the user explicitly asks you to navigate to that page. Do not use this when a questions is asked." @call="navigateTo">
+<tool name="navigate_to" description="Navigates to a different page in the documentation. Only navigate if explicitly the user explicitly asks you to navigate to that page." @call="navigateTo">
   <prop name="section" type="string" description="The section of the documentation to open (one of 'tools', 'context', 'vision', 'home', 'getting-started', 'core-concepts', 'svelte-integration', 'react-integration', 'vue-integration', 'demo-navigation', 'demo-weather', 'demo-todo-list', 'demo-product-search', 'demo-data-table', 'demo-form-assistant')." required/>
 </tool>
 
@@ -50,5 +50,5 @@ function navigateTo(e) {
 // first, we read the file content
 import { ref, onMounted } from 'vue';
 
-import { data } from "./load_context.data.js";
+import { data } from "../load_context.data.js";
 </script>

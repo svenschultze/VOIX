@@ -268,5 +268,3 @@ Try these with VOIX:
 - "Clear all filters"
 
 The AI reads the context to understand available categories and current filters.
-
-<!--@include: @/voix_context.md -->

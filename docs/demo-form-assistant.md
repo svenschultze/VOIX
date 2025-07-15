@@ -321,7 +321,3 @@ Try these with VOIX:
 - "Submit the form"
 
 The AI reads the form context to understand required fields and validation rules.
-
-
-
-<!--@include: @/voix_context.md -->
