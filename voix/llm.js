@@ -5,14 +5,13 @@ export async function getSettings() {
     baseUrl: 'https://api.openai.com/v1',
     apiKey: '',
     model: 'gpt-4',
-    maxTokens: '1000',
     temperature: '0.7',
     // Whisper settings
     whisperLanguage: 'en',
     whisperModel: 'whisper-1',
     whisperResponseFormat: 'json',
-    whisperPrompt: '',
-    whisperTemperature: '0'
+    whisperBaseUrl: '',
+    whisperApiKey: '',
   };
   try {
     const settings = await chrome.storage.sync.get(defaultSettings);
@@ -70,28 +69,21 @@ export async function handleWhisperTranscription(data) {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
     formData.append('model', settings.whisperModel || 'whisper-1');
-    formData.append('response_format', settings.whisperResponseFormat || 'json');
+    formData.append('response_format', 'json');
     
     // Add language if not auto-detect
     if (settings.whisperLanguage && settings.whisperLanguage !== 'auto') {
       formData.append('language', settings.whisperLanguage);
     }
-    
-    // Add custom prompt if provided
-    if (settings.whisperPrompt && settings.whisperPrompt.trim()) {
-      formData.append('prompt', settings.whisperPrompt.trim());
-    }
-    
-    // Add temperature if not default
-    if (settings.whisperTemperature && settings.whisperTemperature !== '0') {
-      formData.append('temperature', parseFloat(settings.whisperTemperature));
-    }
+
+    const apiKey = settings.whisperApiKey || settings.apiKey;
+    const baseUrl = settings.whisperBaseUrl || settings.baseUrl;
 
     // Make request to OpenAI Whisper API
-    const response = await fetch(`${settings.baseUrl}/audio/transcriptions`, {
+    const response = await fetch(`${baseUrl}/audio/transcriptions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${settings.apiKey}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: formData
     });
@@ -169,7 +161,6 @@ export async function handleLLMRequest(message) {
     const requestBody = {
       model: settings.model,
       messages: conversationHistory,
-      max_tokens: parseInt(settings.maxTokens) || 1000,
       temperature: parseFloat(settings.temperature) || 0.7
     };
     if (tools && tools.length > 0) {
@@ -246,7 +237,6 @@ export async function handleLLMRequest(message) {
         const followupRequest = {
           model: settings.model,
           messages: followupMessages,
-          max_tokens: parseInt(settings.maxTokens) || 1000,
           temperature: parseFloat(settings.temperature) || 0.7
         };
         const followupResponse = await fetch(`${settings.baseUrl}/chat/completions`, {
@@ -363,7 +353,6 @@ export async function generateExamplePrompts({ tools, context }) {
   const requestBody = {
     model: settings.model,
     messages: [{ role: 'user', content: systemPrompt }],
-    max_tokens: 2096,
     temperature: 0.7
   };
   try {

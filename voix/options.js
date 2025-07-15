@@ -3,14 +3,12 @@ const DEFAULT_SETTINGS = {
   baseUrl: 'https://api.openai.com/v1',
   apiKey: '',
   model: 'gpt-4',
-  maxTokens: '1000',
   temperature: '0.7',
   // Whisper settings
   whisperLanguage: 'en',
   whisperModel: 'whisper-1',
-  whisperResponseFormat: 'json',
-  whisperPrompt: '',
-  whisperTemperature: '0'
+  whisperBaseUrl: '',
+  whisperApiKey: ''
 };
 
 // Presets for different providers
@@ -41,19 +39,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadSettings() {
   try {
     const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
-    
     document.getElementById('baseUrl').value = settings.baseUrl || DEFAULT_SETTINGS.baseUrl;
     document.getElementById('apiKey').value = settings.apiKey || '';
     document.getElementById('model').value = settings.model || DEFAULT_SETTINGS.model;
-    document.getElementById('maxTokens').value = settings.maxTokens || DEFAULT_SETTINGS.maxTokens;
     document.getElementById('temperature').value = settings.temperature || DEFAULT_SETTINGS.temperature;
-    
     // Load Whisper settings
     document.getElementById('whisperLanguage').value = settings.whisperLanguage || DEFAULT_SETTINGS.whisperLanguage;
     document.getElementById('whisperModel').value = settings.whisperModel || DEFAULT_SETTINGS.whisperModel;
-    document.getElementById('whisperResponseFormat').value = settings.whisperResponseFormat || DEFAULT_SETTINGS.whisperResponseFormat;
-    document.getElementById('whisperPrompt').value = settings.whisperPrompt || DEFAULT_SETTINGS.whisperPrompt;
-    document.getElementById('whisperTemperature').value = settings.whisperTemperature || DEFAULT_SETTINGS.whisperTemperature;
+    document.getElementById('whisperBaseUrl').value = settings.whisperBaseUrl || '';
+    document.getElementById('whisperApiKey').value = settings.whisperApiKey || '';
   } catch (error) {
     console.error('Error loading settings:', error);
     showStatus('Error loading settings', 'error');
@@ -95,27 +89,22 @@ async function saveSettings() {
       baseUrl: document.getElementById('baseUrl').value.trim(),
       apiKey: document.getElementById('apiKey').value.trim(),
       model: document.getElementById('model').value.trim(),
-      maxTokens: document.getElementById('maxTokens').value.trim(),
       temperature: document.getElementById('temperature').value,
-      // Include Whisper settings
+      // Whisper settings
       whisperLanguage: document.getElementById('whisperLanguage').value,
       whisperModel: document.getElementById('whisperModel').value,
-      whisperResponseFormat: document.getElementById('whisperResponseFormat').value,
-      whisperPrompt: document.getElementById('whisperPrompt').value.trim(),
-      whisperTemperature: document.getElementById('whisperTemperature').value
+      whisperBaseUrl: document.getElementById('whisperBaseUrl').value.trim(),
+      whisperApiKey: document.getElementById('whisperApiKey').value.trim()
     };
-
     // Validate required fields
     if (!settings.baseUrl) {
       showStatus('Base URL is required', 'error');
       return;
     }
-
     if (!settings.apiKey) {
       showStatus('API Key is required', 'error');
       return;
     }
-
     await chrome.storage.sync.set(settings);
     showStatus('Settings saved successfully!', 'success');
   } catch (error) {
@@ -202,4 +191,11 @@ function showStatus(message, type) {
   setTimeout(() => {
     statusDiv.style.display = 'none';
   }, 5000);
+}
+
+function getWhisperBaseUrl(settings) {
+  return settings.whisperBaseUrl || settings.baseUrl;
+}
+function getWhisperApiKey(settings) {
+  return settings.whisperApiKey || settings.apiKey;
 }

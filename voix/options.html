@@ -252,7 +252,6 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
-      margin-top: 2rem;
       padding: 1.5rem 2rem;
       background: var(--bg-tertiary);
       border-top: 1px solid var(--border-color);
@@ -458,23 +457,16 @@
               <input type="text" id="model" name="model" placeholder="gpt-4" value="gpt-4">
               <div class="help-text">The model to use for chat completions</div>
             </div>
-
             <div class="form-group">
-              <label for="maxTokens">Max Tokens</label>
-              <input type="text" id="maxTokens" name="maxTokens" placeholder="1000" value="1000">
-              <div class="help-text">Maximum number of tokens in the response</div>
+              <label for="temperature">Temperature</label>
+              <select id="temperature" name="temperature">
+                <option value="0">0 (Deterministic)</option>
+                <option value="0.3">0.3 (Focused)</option>
+                <option value="0.7" selected>0.7 (Balanced)</option>
+                <option value="1.0">1.0 (Creative)</option>
+              </select>
+              <div class="help-text">Controls randomness in the AI responses</div>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label for="temperature">Temperature</label>
-            <select id="temperature" name="temperature">
-              <option value="0">0 (Deterministic)</option>
-              <option value="0.3">0.3 (Focused)</option>
-              <option value="0.7" selected>0.7 (Balanced)</option>
-              <option value="1.0">1.0 (Creative)</option>
-            </select>
-            <div class="help-text">Controls randomness in the AI responses</div>
           </div>
         </div>
       </div>
@@ -489,6 +481,11 @@
         </div>
         <div class="card-content">
           <div class="grid">
+            <div class="form-group">
+              <label for="whisperModel">Model</label>
+              <input type="text" id="whisperModel" name="whisperModel" placeholder="whisper-1" value="whisper-1">
+              <div class="help-text">OpenAI Whisper model (e.g., whisper-1, whisper-large-v3)</div>
+            </div>
             <div class="form-group">
               <label for="whisperLanguage">Language</label>
               <select id="whisperLanguage" name="whisperLanguage">
@@ -515,45 +512,18 @@
               </select>
               <div class="help-text">Language for speech recognition</div>
             </div>
-
-            <div class="form-group">
-              <label for="whisperModel">Model</label>
-              <input type="text" id="whisperModel" name="whisperModel" placeholder="whisper-1" value="whisper-1">
-              <div class="help-text">OpenAI Whisper model (e.g., whisper-1, whisper-large-v3)</div>
-            </div>
           </div>
-
-          <div class="grid">
+          <div id="whisper-api-fields">
             <div class="form-group">
-              <label for="whisperResponseFormat">Response Format</label>
-              <select id="whisperResponseFormat" name="whisperResponseFormat">
-                <option value="json" selected>JSON</option>
-                <option value="text">Text</option>
-                <option value="srt">SRT</option>
-                <option value="verbose_json">Verbose JSON</option>
-                <option value="vtt">VTT</option>
-              </select>
-              <div class="help-text">Format of the transcription response</div>
+              <label for="whisperBaseUrl">Base URL</label>
+              <input type="text" id="whisperBaseUrl" name="whisperBaseUrl" placeholder="Leave empty to use API Configuration">
+              <div class="help-text">If empty, uses the Base URL from API Configuration above</div>
             </div>
-
             <div class="form-group">
-              <label for="whisperTemperature">Temperature</label>
-              <select id="whisperTemperature" name="whisperTemperature">
-                <option value="0" selected>0 (Most accurate)</option>
-                <option value="0.2">0.2 (Slightly creative)</option>
-                <option value="0.4">0.4 (Balanced)</option>
-                <option value="0.6">0.6 (More creative)</option>
-                <option value="0.8">0.8 (Creative)</option>
-                <option value="1.0">1.0 (Most creative)</option>
-              </select>
-              <div class="help-text">Sampling temperature for Whisper</div>
+              <label for="whisperApiKey">API Key</label>
+              <input type="password" id="whisperApiKey" name="whisperApiKey" placeholder="Leave empty to use API Configuration">
+              <div class="help-text">If empty, uses the API Key from API Configuration above</div>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label for="whisperPrompt">Custom Prompt (Optional)</label>
-            <input type="text" id="whisperPrompt" name="whisperPrompt" placeholder="e.g., This is a technical discussion about web development">
-            <div class="help-text">Optional text to guide the model's style or continue a previous audio segment</div>
           </div>
         </div>
       </div>
