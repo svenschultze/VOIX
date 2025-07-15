@@ -1003,7 +1003,7 @@ class VOIXSidePanel {
               <div class="resource-info">
                 <details class="resource-details">
                   <summary class="resource-summary">${resource.name || resource.uri}</summary>
-                  <pre style="margin-top: -40px;"><code>${resource.content}</code></pre>
+                  <pre><code>${resource.content}</code></pre>
                 </details>
               </div>
             </div>
