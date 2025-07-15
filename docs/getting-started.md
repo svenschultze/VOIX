@@ -1,4 +1,3 @@
-<!-- #region context -->
 # Getting Started with VOIX
 
 ## Installation
@@ -9,15 +8,6 @@
 2. Click "Add to Chrome"
 3. Confirm the installation when prompted
 4. The VOIX icon will appear in your Chrome toolbar
-
-### After Installation
-
-Once installed, VOIX will automatically:
-- Add a side panel that can be opened on any website
-- Detect VOIX-compatible elements on web pages
-- Enable voice input and AI chat functionality
-
-## Initial Setup
 
 ### 1. Open VOIX Settings
 
@@ -31,29 +21,16 @@ VOIX supports multiple AI providers. Choose one and configure it:
 - **Base URL**: `https://api.openai.com/v1`
 - **API Key**: Your OpenAI API key (starts with `sk-`)
 - **Model**: `gpt-4` or `gpt-3.5-turbo`
-- **Max Tokens**: 1000 (adjust as needed)
-- **Temperature**: 0.7 (balanced creativity)
 
-#### Azure OpenAI
-- **Base URL**: `https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT`
-- **API Key**: Your Azure OpenAI key
-- **Model**: Your deployment name
-- **Max Tokens**: 1000
-- **Temperature**: 0.7
-
-#### Anthropic (Claude)
-- **Base URL**: `https://api.anthropic.com/v1`
-- **API Key**: Your Anthropic API key
-- **Model**: `claude-3-opus` or `claude-3-sonnet`
-- **Max Tokens**: 1000
-- **Temperature**: 0.7
+#### OpenAI-compatible (e.g. Azure OpenAI)
+- **Base URL**: Your OpenAI-compatible endpoint (e.g. `https://api.example.org/v1`)
+- **API Key**: Your API key
+- **Model**: Your model name
 
 #### Local (Ollama)
 - **Base URL**: `http://localhost:11434/v1`
 - **API Key**: Not required (leave empty)
-- **Model**: `llama3`, `mistral`, or your installed model
-- **Max Tokens**: 1000
-- **Temperature**: 0.7
+- **Model**: `qwen3`, `mistral`, or your installed model
 
 ### 3. Configure Voice Input (Optional)
 
@@ -61,9 +38,8 @@ VOIX uses OpenAI's Whisper API for voice transcription:
 
 - **Language**: Select your preferred language or use "Auto-detect"
 - **Model**: `whisper-1` (default)
-- **Response Format**: `json` (recommended)
-- **Temperature**: 0 (most accurate)
-- **Custom Prompt**: Optional context for better transcription
+- **Base URL**: Leave empty to use the same as your AI provider, otherwise specify another OpenAI-compatible endpoint
+- **API Key**: Your API key (if using a separate endpoint)
 
 ### 4. Test Your Configuration
 
@@ -74,17 +50,8 @@ VOIX uses OpenAI's Whisper API for voice transcription:
 ## Using VOIX
 
 ### Opening the Chat Panel
-
-There are two ways to open VOIX:
-
-1. **Side Panel** (Recommended):
-   - Click the VOIX icon in your toolbar
-   - Select "Open side panel"
-   - The chat interface will appear on the right side of your browser
-
-2. **Floating Chat**:
-   - Some websites may show a floating VOIX button
-   - Click it to open the chat interface
+- Click the VOIX icon in your toolbar
+- The chat interface will appear on the right side of your browser
 
 ### Basic Chat
 
@@ -97,7 +64,7 @@ There are two ways to open VOIX:
 1. Click the microphone button 🎤
 2. Speak your message
 3. Click the microphone again to stop recording
-4. Your speech will be transcribed and sent
+4. Your speech will be transcribed
 
 ### Live Voice Mode
 
@@ -108,8 +75,8 @@ There are two ways to open VOIX:
 ### Thinking Mode
 
 1. Click the lightbulb button 💡
-2. VOIX will show its reasoning process
-3. Useful for complex tasks or debugging
+2. If compatible, the AI will respond after reasoning for some time
+3. Useful for complex tasks
 
 ## Interacting with VOIX-Compatible Websites
 
@@ -128,50 +95,18 @@ VOIX reads `<context>` elements to understand:
 - User information
 - Application data
 
-### Resources
-VOIX can access `<resource>` elements for:
-- Additional documentation
-- API references
-- Help content
 
-## Troubleshooting
-
-### Connection Issues
-
-If you see "Failed to connect to API":
-1. Check your API key is correct
-2. Verify the base URL matches your provider
-3. Ensure you have an active internet connection
-4. Check if your API key has sufficient credits
-
-### Voice Input Not Working
-
-1. Ensure microphone permissions are granted
-2. Check your browser's microphone settings
-3. Verify Whisper API settings are configured
-4. Test with a different browser tab
-
-### VOIX Not Detecting Tools
-
-1. Refresh the page
-2. Check if the website has proper `<tool>` elements
-3. Open developer console for any errors
-4. Ensure JavaScript is enabled
-
-## Privacy & Security
-
-- API keys are stored locally in your browser
-- Voice recordings are sent to your configured Whisper API
-- Chat messages are sent to your configured AI provider
-- VOIX does not collect or store any personal data
-- Page content is only accessed when you interact with VOIX
+> [!INFO]
+> **This documentation itself is an example of a VOIX-compatible page**, using `<tool>` to allow chat based navigation and `<context>` elements to provide the full API documentation. Try it out by asking questions like:
+> ```plaintext
+> "How do I use tools in VOIX?"
+> "Navigate to the context documentation"
+> "How do I integrate VOIX with Svelte?"
+> ```
 
 ## Next Steps
 
 - Learn about [Core Concepts](./core-concepts.md) to understand how VOIX works
-- Explore [Tools](./tools.md) to build VOIX-compatible websites
-
-<!-- #region endcontext -->
-
+- Explore [Demos](./demo-weather.md) to see VOIX in action
 
 <!--@include: @/voix_context.md -->

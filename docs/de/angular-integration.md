@@ -1,424 +1,119 @@
-# Angular-Integrationshandbuch
+# Angular-Integrationsleitfaden
 
-> [!CAUTION]
-> Dieses Handbuch ist ungetestet und kann Fehler enthalten. Bitte überprüfen Sie die Codebeispiele in Ihrer eigenen Implementierung und melden Sie alle Probleme.
-
-Dieses Handbuch behandelt Muster und bewährte Verfahren für die Integration von VOIX in Angular-Anwendungen, einschließlich Werkzeugen auf Komponentenebene, Zustandsmanagement und Angular-spezifischen Optimierungen.
+Dieser Leitfaden beschreibt, wie **VOIX** in Angular-Anwendungen integriert wird, unter Verwendung deklarativer `<tool>`- und `<context>`-Elemente.
 
 ## Konfiguration
 
-### Modulkonfiguration
+### Globale Styles
 
-Fügen Sie Ihrem Modul `CUSTOM_ELEMENTS_SCHEMA` hinzu, um benutzerdefinierte Elemente zu ermöglichen:
-
-```typescript
-// app.module.ts oder das Modul Ihrer Komponente
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-
-@NgModule({
-  // ... andere Konfiguration
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
-})
-export class AppModule { }
-```
-
-### Globale Stile
-
-Fügen Sie diese Stile hinzu, um VOIX-Elemente in der Benutzeroberfläche auszublenden:
+Um VOIX-bezogene Elemente im UI auszublenden, füge Folgendes zu deinen globalen Styles hinzu (typischerweise `app.css` oder `styles.css`):
 
 ```css
-/* styles.css oder globale Stile */
+/* styles.css oder app.css */
 tool, prop, context, array, dict {
   display: none;
 }
 ```
 
-## Werkzeuge auf Komponentenebene
+## Tools und Kontexte
 
-Definieren Sie Werkzeuge auf Komponentenebene für eine bessere Kapselung:
+Definiere Tools und Kontexte in den Templates deiner Angular-Komponenten mit den Tags `<tool>` und `<context>`. Reagiere auf Tool-Aufrufe mit einem Event-Binding.
 
-```typescript
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input } from '@angular/core';
+### Beispiel
+
+```html
+<!-- app.html -->
+<context name="secret_number">
+  die geheime Zahl ist {{ secretNumber() }}
+</context>
+
+<tool name="change_number" description="Ändere die geheime Zahl" (call)="changeNumber($event)">
+  <prop name="number" type="number" />
+</tool>
+
+<div>
+  <p>Die geheime Zahl ist: {{ secretNumber() }}</p>
+  <p>Benutze das Tool, um sie zu ändern!</p>
+</div>
+```
+
+```ts
+// app.ts
+import { Component, NO_ERRORS_SCHEMA, signal } from '@angular/core';
 
 @Component({
-  selector: 'app-user-profile',
-  template: `
-    <div class="user-profile">
-      <h2>Profil von {{ user.name }}</h2>
-      
-      <!-- Komponentenspezifische Werkzeuge -->
-      <tool 
-        #updateTool
-        [attr.name]="'update_' + userId + '_profile'"
-        description="Profil dieses Benutzers aktualisieren"
-      >
-        <prop name="field" type="string" required description="name, email oder bio"></prop>
-        <prop name="value" type="string" required></prop>
-      </tool>
-      
-      <tool 
-        #notificationTool
-        [attr.name]="'toggle_' + userId + '_notifications'"
-        description="E-Mail-Benachrichtigungen umschalten"
-      >
-      </tool>
-      
-      <!-- Komponentenkontext mit mehreren Werten -->
-      <context [attr.name]="'user_' + userId + '_state'">
-        Name: {{ user.name }}
-        E-Mail: {{ user.email }}
-        Bio: {{ user.bio }}
-        Benachrichtigungen: {{ user.notifications ? 'Aktiviert' : 'Deaktiviert' }}
-      </context>
-      
-      <!-- Reguläre Benutzeroberfläche -->
-      <div class="profile-details">
-        <p>E-Mail: {{ user.email }}</p>
-        <p>Bio: {{ user.bio }}</p>
-        <p>Benachrichtigungen: {{ user.notifications ? 'An' : 'Aus' }}</p>
-      </div>
-    </div>
-  `
+  selector: 'app-root',
+  templateUrl: './app.html',
+  styleUrl: './app.css',
+  schemas: [NO_ERRORS_SCHEMA],
 })
-export class UserProfileComponent implements OnInit, OnDestroy {
-  @Input() userId!: string;
-  @ViewChild('updateTool') updateTool!: ElementRef;
-  @ViewChild('notificationTool') notificationTool!: ElementRef;
+export class App {
+  protected readonly secretNumber = signal(42);
 
-  user = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    bio: 'Softwareentwickler',
-    notifications: true
-  };
-
-  private updateHandler = this.handleUpdateProfile.bind(this);
-  private notificationHandler = this.handleToggleNotifications.bind(this);
-
-  ngOnInit() {
-    // Event-Listener werden in ngAfterViewInit angehängt
-  }
-
-  ngAfterViewInit() {
-    if (this.updateTool) {
-      this.updateTool.nativeElement.addEventListener('call', this.updateHandler);
-    }
-    if (this.notificationTool) {
-      this.notificationTool.nativeElement.addEventListener('call', this.notificationHandler);
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.updateTool) {
-      this.updateTool.nativeElement.removeEventListener('call', this.updateHandler);
-    }
-    if (this.notificationTool) {
-      this.notificationTool.nativeElement.removeEventListener('call', this.notificationHandler);
-    }
-  }
-
-  private handleUpdateProfile(event: any) {
-    const { field, value } = event.detail;
-    
-    if (field in this.user) {
-      (this.user as any)[field] = value;
-      event.detail.success = true;
-      event.detail.message = `${field} auf ${value} aktualisiert`;
-    } else {
-      event.detail.success = false;
-      event.detail.error = `Ungültiges Feld: ${field}`;
-    }
-  }
-
-  private handleToggleNotifications(event: any) {
-    this.user.notifications = !this.user.notifications;
-    event.detail.success = true;
-    event.detail.message = `Benachrichtigungen ${this.user.notifications ? 'aktiviert' : 'deaktiviert'}`;
+  protected changeNumber = (event: Event) => {
+    const number = (event as CustomEvent<{ number: number }>).detail.number;
+    console.log('changeNumber wurde aufgerufen mit Wert:', number);
+    this.secretNumber.set(number);
   }
 }
 ```
 
-## Fortgeschrittene Muster
+## Bedingte Tools und Kontexte
 
-### Eindeutige Werkzeugnamen
+Verwende Angulars strukturelle Direktiven (z. B. `*ngIf`), um Tools oder Kontexte bedingt darzustellen.
 
-Werkzeuge müssen in Ihrer gesamten Anwendung eindeutige Namen haben. Wenn Sie mehrere Instanzen derselben Komponente verwenden, fügen Sie einen Bezeichner hinzu:
+```html
+<div *ngIf="isAdmin">
+  <tool name="admin_action" description="Führe eine Admin-Aktion aus" (call)="performAdminAction($event)">
+    <prop name="actionName" type="string" />
+  </tool>
 
-```typescript
-import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+  <context name="admin_info">
+    Admin-Panel ist sichtbar.
+  </context>
+</div>
 
-@Component({
-  selector: 'app-product-card',
-  template: `
-    <div class="product-card">
-      <!-- Produkt-ID in den Werkzeugnamen aufnehmen, um Eindeutigkeit zu gewährleisten -->
-      <tool 
-        #addToCartTool
-        [attr.name]="'add_to_cart_' + product.id"
-        description="Dieses Produkt zum Warenkorb hinzufügen"
-      >
-        <prop name="quantity" type="number" required></prop>
-      </tool>
-      
-      <tool 
-        #toggleFavoriteTool
-        [attr.name]="'toggle_favorite_' + product.id"
-        description="Favoritenstatus umschalten"
-      >
-      </tool>
-      
-      <h3>{{ product.name }}</h3>
-      <button (click)="addToCart()">Zum Warenkorb hinzufügen</button>
-    </div>
-  `
-})
-export class ProductCardComponent implements AfterViewInit, OnDestroy {
-  @Input() product!: { id: string; name: string };
-  @ViewChild('addToCartTool') addToCartTool!: ElementRef;
-  @ViewChild('toggleFavoriteTool') toggleFavoriteTool!: ElementRef;
+<button (click)="isAdmin = !isAdmin">
+  Admin-Modus umschalten: {{ isAdmin ? 'Ein' : 'Aus' }}
+</button>
+```
 
-  private addToCartHandler = this.handleAddToCart.bind(this);
-  private toggleFavoriteHandler = this.handleToggleFavorite.bind(this);
+```ts
+isAdmin = false;
 
-  ngAfterViewInit() {
-    if (this.addToCartTool) {
-      this.addToCartTool.nativeElement.addEventListener('call', this.addToCartHandler);
-    }
-    if (this.toggleFavoriteTool) {
-      this.toggleFavoriteTool.nativeElement.addEventListener('call', this.toggleFavoriteHandler);
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.addToCartTool) {
-      this.addToCartTool.nativeElement.removeEventListener('call', this.addToCartHandler);
-    }
-    if (this.toggleFavoriteTool) {
-      this.toggleFavoriteTool.nativeElement.removeEventListener('call', this.toggleFavoriteHandler);
-    }
-  }
-
-  private handleAddToCart(event: any) {
-    const { quantity } = event.detail;
-    // Logik zum Hinzufügen zum Warenkorb
-    event.detail.success = true;
-    event.detail.message = `${quantity} zum Warenkorb hinzugefügt`;
-  }
-
-  private handleToggleFavorite(event: any) {
-    // Logik zum Umschalten des Favoritenstatus
-    event.detail.success = true;
-  }
-
-  addToCart() {
-    // Regulärer Button-Klick-Handler
-  }
+performAdminAction(event: Event) {
+  const actionName = (event as CustomEvent<{ actionName: string }>).detail.actionName;
+  console.log('Admin-Aktion:', actionName);
 }
 ```
 
-### Bedingte Werkzeugverfügbarkeit
+## Tools, die Daten abrufen
 
-Zeigen Sie Werkzeuge basierend auf Benutzerberechtigungen an:
+Verwende `async`-Funktionen im `(call)`-Handler für Tools, die Daten abrufen oder berechnen:
 
-```typescript
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-import { UserService } from './services/user.service';
-
-@Component({
-  selector: 'app-admin-panel',
-  template: `
-    <div>
-      <!-- Admin-Werkzeuge nur für Admins sichtbar -->
-      <tool 
-        *ngIf="userService.isAdmin"
-        #deleteUsersTool
-        name="delete_users" 
-        description="Ausgewählte Benutzer löschen"
-      >
-        <prop name="userIds" type="array" required></prop>
-      </tool>
-      
-      <!-- Für alle Benutzer verfügbar -->
-      <tool 
-        #exportDataTool
-        name="export_data" 
-        description="Ihre Daten exportieren"
-      >
-        <prop name="format" type="string" description="csv oder json"></prop>
-      </tool>
-      
-      <context name="permissions">
-        Rolle: {{ userService.role }}
-        Admin: {{ userService.isAdmin ? 'Ja' : 'Nein' }}
-      </context>
-    </div>
-  `
-})
-export class AdminPanelComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('deleteUsersTool') deleteUsersTool?: ElementRef;
-  @ViewChild('exportDataTool') exportDataTool!: ElementRef;
-
-  private deleteUsersHandler = this.handleDeleteUsers.bind(this);
-  private exportDataHandler = this.handleExportData.bind(this);
-
-  constructor(public userService: UserService) {}
-
-  ngAfterViewInit() {
-    if (this.deleteUsersTool && this.userService.isAdmin) {
-      this.deleteUsersTool.nativeElement.addEventListener('call', this.deleteUsersHandler);
-    }
-    if (this.exportDataTool) {
-      this.exportDataTool.nativeElement.addEventListener('call', this.exportDataHandler);
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.deleteUsersTool) {
-      this.deleteUsersTool.nativeElement.removeEventListener('call', this.deleteUsersHandler);
-    }
-    if (this.exportDataTool) {
-      this.exportDataTool.nativeElement.removeEventListener('call', this.exportDataHandler);
-    }
-  }
-
-  private handleDeleteUsers(event: any) {
-    const { userIds } = event.detail;
-    // Logik zum Löschen von Benutzern
-    event.detail.success = true;
-    event.detail.message = `${userIds.length} Benutzer gelöscht`;
-  }
-
-  private handleExportData(event: any) {
-    const { format } = event.detail;
-    // Logik zum Exportieren von Daten
-    event.detail.success = true;
-  }
-}
+```html
+<tool name="get_weather" description="Hole Wetterdaten für eine Stadt" (call)="getWeather($event)">
+  <prop name="location" type="string" description="Stadtname" />
+</tool>
 ```
 
-### Echtzeit-Updates
+```ts
+async getWeather(event: Event) {
+  const location = (event as CustomEvent<{ location: string }>).detail.location;
+  const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}`);
+  const geoData = await geoRes.json();
 
-Aktualisieren Sie den Kontext automatisch, wenn sich Daten ändern:
-
-```typescript
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-
-@Component({
-  selector: 'app-dashboard',
-  template: `
-    <div class="dashboard">
-      <!-- Kontext wird automatisch mit Eigenschaftsänderungen aktualisiert -->
-      <context name="metrics">
-        Benutzer online: {{ onlineUsers }}
-        Letztes Update: {{ lastUpdate }}
-      </context>
-      
-      <tool 
-        #refreshDataTool
-        name="refresh_data" 
-        description="Dashboard-Daten aktualisieren"
-      >
-      </tool>
-      
-      <div>
-        <h3>Dashboard</h3>
-        <p>Benutzer Online: {{ onlineUsers }}</p>
-        <p>Letztes Update: {{ lastUpdate }}</p>
-      </div>
-    </div>
-  `
-})
-export class DashboardComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('refreshDataTool') refreshDataTool!: ElementRef;
-
-  onlineUsers = 0;
-  lastUpdate = new Date().toLocaleTimeString();
-  private interval?: number;
-  private refreshHandler = this.handleRefresh.bind(this);
-
-  ngAfterViewInit() {
-    if (this.refreshDataTool) {
-      this.refreshDataTool.nativeElement.addEventListener('call', this.refreshHandler);
-    }
-
-    // Echtzeit-Updates simulieren
-    this.interval = window.setInterval(() => {
-      this.onlineUsers = Math.floor(Math.random() * 100);
-      this.lastUpdate = new Date().toLocaleTimeString();
-    }, 5000);
+  if (!geoData.results?.length) {
+    return console.error('Ort nicht gefunden');
   }
 
-  ngOnDestroy() {
-    if (this.refreshDataTool) {
-      this.refreshDataTool.nativeElement.removeEventListener('call', this.refreshHandler);
-    }
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-  }
+  const { latitude, longitude, name, country } = geoData.results[0];
 
-  private handleRefresh(event: any) {
-    this.onlineUsers = Math.floor(Math.random() * 100);
-    this.lastUpdate = new Date().toLocaleTimeString();
-    event.detail.success = true;
-    event.detail.message = 'Daten aktualisiert';
-  }
+  const wxRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m`);
+  const wxData = await wxRes.json();
+
+  console.log('Wetterdaten für', name, country, wxData);
 }
 ```
-
-## Testen
-
-Erstellen Sie Test-Dienstprogramme für VOIX-Werkzeuge:
-
-```typescript
-// test-utils/voix.ts
-export function triggerTool(toolName: string, params: any) {
-  const tool = document.querySelector(`[name="${toolName}"]`);
-  const event = new CustomEvent('call', {
-    detail: { ...params }
-  });
-  
-  tool?.dispatchEvent(event);
-  
-  return (event as any).detail;
-}
-
-// dashboard.component.spec.ts
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DashboardComponent } from './dashboard.component';
-import { triggerTool } from './test-utils/voix';
-
-describe('DashboardComponent', () => {
-  let component: DashboardComponent;
-  let fixture: ComponentFixture<DashboardComponent>;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [DashboardComponent]
-    });
-    fixture = TestBed.createComponent(DashboardComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('sollte das Aktualisierungswerkzeug behandeln', (done) => {
-    setTimeout(() => {
-      const result = triggerTool('refresh_data', {});
-      
-      expect(result.success).toBe(true);
-      expect(result.message).toBe('Daten aktualisiert');
-      
-      // Überprüfen, ob der Kontext aktualisiert wurde
-      const context = document.querySelector('[name="metrics"]');
-      expect(context?.textContent).toContain('Benutzer online:');
-      done();
-    }, 100);
-  });
-});
-```
-
-Dieses Handbuch behandelt die wesentlichen Muster für die Integration von VOIX in Angular-Anwendungen, wobei der Schwerpunkt auf praktischen Beispielen und sauberen Codierungspraktiken liegt.
-
-
 
 <!--@include: @/de/voix_context.md -->

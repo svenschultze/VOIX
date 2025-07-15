@@ -35,7 +35,7 @@
 </context>
 
 <tool name="navigate_to" description="Navigates to a different page in the documentation. Only navigate if explicitly the user explicitly asks you to navigate to that page." @call="navigateTo">
-  <prop name="section" type="string" description="The section of the documentation to open (one of 'tools', 'context', 'vision', 'home', 'getting-started', 'core-concepts', 'svelte-integration', 'react-integration', 'vue-integration', 'demo-navigation', 'demo-weather', 'demo-todo-list', 'demo-product-search', 'demo-data-table', 'demo-form-assistant')." required/>
+  <prop name="section" type="string" description="The section of the documentation to open (one of 'tools', 'contexts', 'vision', 'home', 'getting-started', 'core-concepts', 'svelte-integration', 'react-integration', 'vue-integration', 'demo-navigation', 'demo-weather', 'demo-todo-list', 'demo-product-search', 'demo-data-table', 'demo-form-assistant')." required/>
 </tool>
 
 <script setup>
