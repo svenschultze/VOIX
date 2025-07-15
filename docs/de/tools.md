@@ -350,7 +350,7 @@ Werkzeuge in VOIX sind einfache HTML-Elemente, die deklarieren, welche Aktionen 
 
 ## Nächste Schritte
 
-- Erfahren Sie mehr über [Kontext](./context.md) zur Bereitstellung von Zustandsinformationen
+- Erfahren Sie mehr über [Kontext](./contexts.md) zur Bereitstellung von Zustandsinformationen
 - Lesen Sie die [Ersten Schritte](./getting-started.md) für Einrichtungsanweisungen
 
 <!--@include: @/de/voix_context.md -->

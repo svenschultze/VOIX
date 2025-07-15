@@ -156,6 +156,6 @@ Jeder Schritt findet im Browser statt. Die einzige externe Abhängigkeit ist der
 ## Nächste Schritte
 
 - Erfahren Sie mehr über [Werkzeuge](./tools.md), um interaktive Fähigkeiten zu erstellen
-- Verstehen Sie [Kontext](./context.md) zum Teilen des Anwendungszustands
+- Verstehen Sie [Kontext](./contexts.md) zum Teilen des Anwendungszustands
 
 <!--@include: @/de/voix_context.md -->

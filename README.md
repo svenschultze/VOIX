@@ -135,7 +135,7 @@ Context elements provide the AI with plain text information about your applicati
   * **Be Concise**: Only provide information that is relevant to the AI's understanding of the current state.
   * **Update Frequently**: Keep the context current by updating it whenever your application's state changes.
 
-📖 [Complete context documentation](https://svenschultze.github.io/VOIX/context.html)
+📖 [Complete context documentation](https://svenschultze.github.io/VOIX/contexts.html)
 
 ## 🚀 Using VOIX
 
@@ -159,7 +159,7 @@ Context elements provide the AI with plain text information about your applicati
 - **[Getting Started](https://svenschultze.github.io/VOIX/getting-started.html)** - Detailed setup instructions
 - **[Core Concepts](https://svenschultze.github.io/VOIX/core-concepts.html)** - Architecture and design principles
 - **[Tools Reference](https://svenschultze.github.io/VOIX/tools.html)** - Complete guide to creating tools
-- **[Context Reference](https://svenschultze.github.io/VOIX/context.html)** - Managing application state
+- **[Context Reference](https://svenschultze.github.io/VOIX/contexts.html)** - Managing application state
 
 ### Framework Integration Guides
 - **[Vue.js](https://svenschultze.github.io/VOIX/vue-integration.html)** - Vue 3 patterns and best practices
