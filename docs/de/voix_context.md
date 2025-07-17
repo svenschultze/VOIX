@@ -6,8 +6,8 @@
 {{ data.tools }}
 </context>
 
-<context name="context">
-{{ data.context }}
+<context name="contexts">
+{{ data.contexts }}
 </context>
 
 <context name="vision">
