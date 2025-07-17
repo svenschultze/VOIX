@@ -454,6 +454,8 @@
   /* Remove max-height, overflow, and scrolling styles */
   max-height: none !important;
   overflow: visible !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .tools-overview-content.collapsed {
@@ -515,6 +517,7 @@
 /* Tools Section */
 .tools-section {
   padding: 12px 16px;
+  order: 1;
 }
 
 .tools-section-header {
@@ -607,6 +610,7 @@
 .context-section {
   padding: 12px 16px;
   border-top: 1px solid var(--voix-border);
+  order: 2;
 }
 
 .context-section-header {
