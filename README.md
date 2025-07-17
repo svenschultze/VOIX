@@ -84,7 +84,7 @@ Tools are HTML elements that declare actions an AI can perform on your website.
 
 ```html
 <tool name="toolName" description="What this tool does">
-  <prop name="paramName" type="string" required/>
+  <prop name="paramName" type="string" required></prop>
 </tool>
 ```
 

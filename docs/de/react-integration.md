@@ -126,7 +126,7 @@ function App() {
         Der aktuelle Zählerstand ist {count}
       </context>
       <Tool name="increment_counter" description="Erhöht den Zähler um n" onCall={(event) => handleIncrement(event)}>
-        <prop name="n" type="number" required description="Die Zahl, um die der Zähler erhöht werden soll" />
+        <prop name="n" type="number" required description="Die Zahl, um die der Zähler erhöht werden soll" ></prop>
       </Tool>
       <button onClick={() => setCount((count) => count + 1)}>
         Zähler ist {count}

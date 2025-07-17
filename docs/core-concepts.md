@@ -23,7 +23,7 @@ Your website declares capabilities using HTML elements:
 ```html
 <!-- Declare an action -->
 <tool name="create_task" description="Create a new task">
-  <prop name="title" type="string" required/>
+  <prop name="title" type="string" required></prop>
 </tool>
 
 <!-- Provide current state -->
@@ -119,7 +119,7 @@ User Input → AI Processing → Tool Selection → Event Dispatch → Your Hand
 1. **User visits your task management app**
    ```html
    <tool name="mark_complete" description="Mark a task as complete">
-     <prop name="taskId" type="string" required/>
+     <prop name="taskId" type="string" required></prop>
    </tool>
    
    <context name="tasks">

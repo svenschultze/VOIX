@@ -19,22 +19,22 @@ Die Datentabelle bietet Werkzeuge zur Bearbeitung und zum Export von tabellarisc
 ```html
 <!-- Datentabellen-Werkzeuge -->
 <tool name="sort_table" description="Die Tabelle nach einer Spalte sortieren">
-  <prop name="column" type="string" description="Spaltenname: name, email, role, joined oder status"/>
-  <prop name="order" type="string" description="asc oder desc"/>
+  <prop name="column" type="string" description="Spaltenname: name, email, role, joined oder status"></prop>
+  <prop name="order" type="string" description="asc oder desc"></prop>
 </tool>
 
 <tool name="filter_table" description="Tabellenzeilen filtern">
-  <prop name="column" type="string" description="Zu filternde Spalte"/>
-  <prop name="value" type="string" description="Filterwert"/>
+  <prop name="column" type="string" description="Zu filternde Spalte"></prop>
+  <prop name="value" type="string" description="Filterwert"></prop>
 </tool>
 
 <tool name="select_rows" description="Zeilen nach Kriterien auswählen">
-  <prop name="criteria" type="string" description="all, none oder spezifischer Status"/>
+  <prop name="criteria" type="string" description="all, none oder spezifischer Status"></prop>
 </tool>
 
 <tool name="export_data" description="Tabellendaten exportieren">
-  <prop name="format" type="string" description="csv, json oder Zwischenablage"/>
-  <prop name="selected" type="boolean" description="Nur ausgewählte Zeilen exportieren"/>
+  <prop name="format" type="string" description="csv, json oder Zwischenablage"></prop>
+  <prop name="selected" type="boolean" description="Nur ausgewählte Zeilen exportieren"></prop>
 </tool>
 
 <tool name="reset_table" description="Alle Filter und Sortierungen zurücksetzen">

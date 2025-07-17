@@ -2,19 +2,19 @@
   <div class="demo-container">
     <!-- Navigation tools -->
     <tool name="go_to_page" description="Navigate to a specific page">
-      <prop name="page" type="string" description="Page name: home, products, about, contact, or docs"/>
+      <prop name="page" type="string" description="Page name: home, products, about, contact, or docs"></prop>
     </tool>
 
     <tool name="open_section" description="Open a specific section on the current page">
-      <prop name="section" type="string" description="Section identifier"/>
+      <prop name="section" type="string" description="Section identifier"></prop>
     </tool>
 
     <tool name="toggle_menu" description="Toggle navigation menu">
-      <prop name="menu" type="string" description="main, user, or mobile"/>
+      <prop name="menu" type="string" description="main, user, or mobile"></prop>
     </tool>
 
     <tool name="search_site" description="Search for content across the site">
-      <prop name="query" type="string" required/>
+      <prop name="query" type="string" required></prop>
     </tool>
 
     <tool name="go_back" description="Go back to the previous page">

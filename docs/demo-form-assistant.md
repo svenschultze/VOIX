@@ -19,23 +19,23 @@ The form provides tools for filling different sections and context about availab
 ```html
 <!-- Form filling tools -->
 <tool name="fill_personal_info" description="Fill personal information fields">
-  <prop name="firstName" type="string"/>
-  <prop name="lastName" type="string"/>
-  <prop name="email" type="string" description="Email address"/>
-  <prop name="phone" type="string" description="Phone number"/>
+  <prop name="firstName" type="string"></prop>
+  <prop name="lastName" type="string"></prop>
+  <prop name="email" type="string" description="Email address"></prop>
+  <prop name="phone" type="string" description="Phone number"></prop>
 </tool>
 
 <tool name="fill_address" description="Fill address information">
-  <prop name="street" type="string"/>
-  <prop name="city" type="string"/>
-  <prop name="state" type="string"/>
-  <prop name="zipCode" type="string" description="5-digit ZIP code"/>
+  <prop name="street" type="string"></prop>
+  <prop name="city" type="string"></prop>
+  <prop name="state" type="string"></prop>
+  <prop name="zipCode" type="string" description="5-digit ZIP code"></prop>
 </tool>
 
 <tool name="select_preferences" description="Set user preferences">
-  <prop name="newsletter" type="boolean" description="Subscribe to newsletter"/>
-  <prop name="notifications" type="string" description="email, sms, or none"/>
-  <prop name="language" type="string" description="en, es, fr, or de"/>
+  <prop name="newsletter" type="boolean" description="Subscribe to newsletter"></prop>
+  <prop name="notifications" type="string" description="email, sms, or none"></prop>
+  <prop name="language" type="string" description="en, es, fr, or de"></prop>
 </tool>
 
 <tool name="submit_form" description="Submit the completed form">

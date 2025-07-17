@@ -19,19 +19,19 @@ Der Navigationshelfer bietet Werkzeuge zum Wechseln zwischen Seiten, zum Öffnen
 ```html
 <!-- Navigationswerkzeuge -->
 <tool name="go_to_page" description="Zu einer bestimmten Seite navigieren">
-  <prop name="page" type="string" description="Seitenname: home, products, about, contact oder docs"/>
+  <prop name="page" type="string" description="Seitenname: home, products, about, contact oder docs"></prop>
 </tool>
 
 <tool name="open_section" description="Einen bestimmten Abschnitt auf der aktuellen Seite öffnen">
-  <prop name="section" type="string" description="Abschnittsbezeichner"/>
+  <prop name="section" type="string" description="Abschnittsbezeichner"></prop>
 </tool>
 
 <tool name="toggle_menu" description="Navigationsmenü umschalten">
-  <prop name="menu" type="string" description="main, user oder mobile"/>
+  <prop name="menu" type="string" description="main, user oder mobile"></prop>
 </tool>
 
 <tool name="search_site" description="Inhalte auf der gesamten Website suchen">
-  <prop name="query" type="string" required/>
+  <prop name="query" type="string" required></prop>
 </tool>
 
 <tool name="go_back" description="Zur vorherigen Seite zurückkehren">

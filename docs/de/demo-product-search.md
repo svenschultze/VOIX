@@ -19,20 +19,20 @@ Die Demo bietet Werkzeuge zum Suchen und Filtern von Produkten, wobei der Kontex
 ```html
 <!-- Such- und Filterwerkzeuge -->
 <tool name="search_products" description="Produkte nach Name oder Beschreibung suchen">
-  <prop name="query" type="string" required/>
+  <prop name="query" type="string" required></prop>
 </tool>
 
 <tool name="filter_by_category" description="Produkte nach Kategorie filtern">
-  <prop name="category" type="string" description="electronics, clothing, books oder all"/>
+  <prop name="category" type="string" description="electronics, clothing, books oder all"></prop>
 </tool>
 
 <tool name="filter_by_price" description="Produkte nach Preisspanne filtern">
-  <prop name="minPrice" type="number" description="Mindestpreis"/>
-  <prop name="maxPrice" type="number" description="Höchstpreis"/>
+  <prop name="minPrice" type="number" description="Mindestpreis"></prop>
+  <prop name="maxPrice" type="number" description="Höchstpreis"></prop>
 </tool>
 
 <tool name="sort_products" description="Produktergebnisse sortieren">
-  <prop name="sortBy" type="string" description="price-low, price-high, name oder rating"/>
+  <prop name="sortBy" type="string" description="price-low, price-high, name oder rating"></prop>
 </tool>
 
 <tool name="clear_filters" description="Alle Filter löschen und alle Produkte anzeigen">

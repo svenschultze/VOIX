@@ -19,23 +19,23 @@ Das Formular bietet Werkzeuge zum Ausfüllen verschiedener Abschnitte und Kontex
 ```html
 <!-- Werkzeuge zum Ausfüllen von Formularen -->
 <tool name="fill_personal_info" description="Persönliche Informationsfelder ausfüllen">
-  <prop name="firstName" type="string"/>
-  <prop name="lastName" type="string"/>
-  <prop name="email" type="string" description="E-Mail-Adresse"/>
-  <prop name="phone" type="string" description="Telefonnummer"/>
+  <prop name="firstName" type="string"></prop>
+  <prop name="lastName" type="string"></prop>
+  <prop name="email" type="string" description="E-Mail-Adresse"></prop>
+  <prop name="phone" type="string" description="Telefonnummer"></prop>
 </tool>
 
 <tool name="fill_address" description="Adressinformationen ausfüllen">
-  <prop name="street" type="string"/>
-  <prop name="city" type="string"/>
-  <prop name="state" type="string"/>
-  <prop name="zipCode" type="string" description="5-stellige Postleitzahl"/>
+  <prop name="street" type="string"></prop>
+  <prop name="city" type="string"></prop>
+  <prop name="state" type="string"></prop>
+  <prop name="zipCode" type="string" description="5-stellige Postleitzahl"></prop>
 </tool>
 
 <tool name="select_preferences" description="Benutzereinstellungen festlegen">
-  <prop name="newsletter" type="boolean" description="Newsletter abonnieren"/>
-  <prop name="notifications" type="string" description="email, sms oder none"/>
-  <prop name="language" type="string" description="en, es, fr oder de"/>
+  <prop name="newsletter" type="boolean" description="Newsletter abonnieren"></prop>
+  <prop name="notifications" type="string" description="email, sms oder none"></prop>
+  <prop name="language" type="string" description="en, es, fr oder de"></prop>
 </tool>
 
 <tool name="submit_form" description="Das ausgefüllte Formular absenden">

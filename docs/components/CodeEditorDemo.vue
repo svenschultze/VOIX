@@ -1,13 +1,13 @@
 <template>
   <div class="code-editor-demo">
     <!-- Tools -->
-    <tool name="list_directory" description="Lists files and directories recursively" @call="listDirectory" return><prop name="path" type="string"/></tool>
-    <tool name="read_file" description="Reads a file's content" @call="readFile" return><prop name="absolute_path" type="string" required/></tool>
-    <tool name="write_file" description="Writes content to a file" @call="writeFile" return><prop name="file_path" type="string" required/><prop name="content" type="string" required/></tool>
-    <tool name="replace" description="Replaces text in a file" @call="replaceText" return><prop name="file_path" type="string" required/><prop name="old_string" type="string" required/><prop name="new_string" type="string" required/></tool>
-    <tool name="create_directory" description="Creates a new directory" @call="createDirectory" return><prop name="path" type="string" required/></tool>
-    <tool name="rename_item" description="Renames a file or directory" @call="renameItem" return><prop name="old_path" type="string" required/><prop name="new_path" type="string" required/></tool>
-    <tool name="delete_item" description="Deletes a file or directory" @call="deleteItem" return><prop name="path" type="string" required/></tool>
+    <tool name="list_directory" description="Lists files and directories recursively" @call="listDirectory" return><prop name="path" type="string"></prop></tool>
+    <tool name="read_file" description="Reads a file's content" @call="readFile" return><prop name="absolute_path" type="string" required></prop></tool>
+    <tool name="write_file" description="Writes content to a file" @call="writeFile" return><prop name="file_path" type="string" required/><prop name="content" type="string" required></prop></tool>
+    <tool name="replace" description="Replaces text in a file" @call="replaceText" return><prop name="file_path" type="string" required/><prop name="old_string" type="string" required/><prop name="new_string" type="string" required></prop></tool>
+    <tool name="create_directory" description="Creates a new directory" @call="createDirectory" return><prop name="path" type="string" required></prop></tool>
+    <tool name="rename_item" description="Renames a file or directory" @call="renameItem" return><prop name="old_path" type="string" required/><prop name="new_path" type="string" required></prop></tool>
+    <tool name="delete_item" description="Deletes a file or directory" @call="deleteItem" return><prop name="path" type="string" required></prop></tool>
 
     <context name="editor_context">{{ editorContext }}</context>
     <context name="file_system" id="file-system-ctx">

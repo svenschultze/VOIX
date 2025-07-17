@@ -59,12 +59,12 @@ Imagine if `<tool>` and `<context>` became part of the HTML standard, joining el
     
     <!-- Standard AI capabilities -->
     <tool name="search_products" description="Search our catalog">
-        <prop name="query" type="string" required/>
+        <prop name="query" type="string" required></prop>
     </tool>
     
     <tool name="add_to_cart" description="Add items to shopping cart">
-        <prop name="productId" type="string" required/>
-        <prop name="quantity" type="number"/>
+        <prop name="productId" type="string" required></prop>
+        <prop name="quantity" type="number"></prop>
     </tool>
     
     <context name="cart_status">

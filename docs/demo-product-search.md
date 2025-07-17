@@ -19,20 +19,20 @@ The demo provides tools for searching and filtering products, with context showi
 ```html
 <!-- Search and filter tools -->
 <tool name="search_products" description="Search for products by name or description">
-  <prop name="query" type="string" required/>
+  <prop name="query" type="string" required></prop>
 </tool>
 
 <tool name="filter_by_category" description="Filter products by category">
-  <prop name="category" type="string" description="electronics, clothing, books, or all"/>
+  <prop name="category" type="string" description="electronics, clothing, books, or all"></prop>
 </tool>
 
 <tool name="filter_by_price" description="Filter products by price range">
-  <prop name="minPrice" type="number" description="Minimum price"/>
-  <prop name="maxPrice" type="number" description="Maximum price"/>
+  <prop name="minPrice" type="number" description="Minimum price"></prop>
+  <prop name="maxPrice" type="number" description="Maximum price"></prop>
 </tool>
 
 <tool name="sort_products" description="Sort product results">
-  <prop name="sortBy" type="string" description="price-low, price-high, name, or rating"/>
+  <prop name="sortBy" type="string" description="price-low, price-high, name, or rating"></prop>
 </tool>
 
 <tool name="clear_filters" description="Clear all filters and show all products">

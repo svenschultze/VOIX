@@ -52,8 +52,8 @@ Das Definieren von Tools innerhalb Ihrer Komponenten kapselt die Funktionalität
       description="Das Profil dieses Benutzers aktualisieren"
       @call="handleUpdateProfile"
     >
-      <prop name="field" type="string" required description="Name, E-Mail oder Bio"/>
-      <prop name="value" type="string" required/>
+      <prop name="field" type="string" required description="Name, E-Mail oder Bio"></prop>
+      <prop name="value" type="string" required></prop>
     </tool>
 
     <tool
@@ -131,7 +131,7 @@ Alle Tools in Ihrer Anwendung müssen einen eindeutigen `name` haben. Wenn Sie w
       description="Dieses Produkt zum Warenkorb hinzufügen"
       @call="handleAddToCart"
     >
-      <prop name="quantity" type="number" required/>
+      <prop name="quantity" type="number" required></prop>
     </tool>
 
     <tool
@@ -188,7 +188,7 @@ Sie können `v-if` verwenden, um Tools basierend auf dem Anwendungszustand, wie 
       description="Ausgewählte Benutzer löschen"
       @call="handleDeleteUsers"
     >
-      <prop name="userIds" type="array" required/>
+      <prop name="userIds" type="array" required></prop>
     </tool>
 
     <tool
@@ -196,7 +196,7 @@ Sie können `v-if` verwenden, um Tools basierend auf dem Anwendungszustand, wie 
       description="Ihre Daten exportieren"
       @call="handleExportData"
     >
-      <prop name="format" type="string" description="csv oder json"/>
+      <prop name="format" type="string" description="csv oder json"></prop>
     </tool>
 
     <context name="permissions">

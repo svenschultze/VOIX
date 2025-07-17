@@ -7,7 +7,7 @@ Tools declare actions that the AI can perform on your website. They define what 
 
 ```html
 <tool name="toolName" description="What this tool does">
-  <prop name="paramName" type="string" required/>
+  <prop name="paramName" type="string" required></prop>
 </tool>
 ```
 
@@ -33,9 +33,9 @@ Tools use `<prop>` elements to define parameters:
 
 ```html
 <tool name="create_meeting" description="Schedule a new meeting">
-  <prop name="title" type="string" required/>
-  <prop name="date" type="string" description="Date in YYYY-MM-DD format" required/>
-  <prop name="duration" type="number" description="Duration in minutes"/>
+  <prop name="title" type="string" required></prop>
+  <prop name="date" type="string" description="Date in YYYY-MM-DD format" required></prop>
+  <prop name="duration" type="number" description="Duration in minutes"></prop>
 </tool>
 ```
 
@@ -51,10 +51,10 @@ Tools use `<prop>` elements to define parameters:
 Use descriptions to clarify format requirements or constraints:
 
 ```html
-<prop name="email" type="string" description="Valid email address" required/>
-<prop name="phone" type="string" description="Phone number in E.164 format"/>
-<prop name="startTime" type="string" description="Time in HH:MM format (24-hour)"/>
-<prop name="amount" type="number" description="Amount in USD (up to 2 decimal places)"/>
+<prop name="email" type="string" description="Valid email address" required></prop>
+<prop name="phone" type="string" description="Phone number in E.164 format"></prop>
+<prop name="startTime" type="string" description="Time in HH:MM format (24-hour)"></prop>
+<prop name="amount" type="number" description="Amount in USD (up to 2 decimal places)"></prop>
 ```
 
 ### Arrays and Objects
@@ -65,8 +65,8 @@ For complex data structures:
 <tool name="invite_users" description="Invite users to project">
   <array name="users" required>
     <dict>
-      <prop name="email" type="string" description="Valid email address" required/>
-      <prop name="role" type="string" description="Either 'viewer', 'editor', or 'admin'"/>
+      <prop name="email" type="string" description="Valid email address" required></prop>
+      <prop name="role" type="string" description="Either 'viewer', 'editor', or 'admin'"></prop>
     </dict>
   </array>
 </tool>
@@ -91,7 +91,7 @@ To enable this, add the `return` flag to the `<tool>` element and dispatch a **`
 
 ```html
 <tool name="get_weather" description="Retrieve current weather data" return>
-  <prop name="location" type="string" required/>
+  <prop name="location" type="string" required></prop>
 </tool>
 ```
 
@@ -162,9 +162,9 @@ document.querySelector('[name=toggle_theme]').addEventListener('call', (e) => {
 
 ```html
 <tool name="submit_contact" description="Submit contact form">
-  <prop name="name" type="string" required/>
-  <prop name="email" type="string" description="Valid email address" required/>
-  <prop name="message" type="string" description="Message content (max 500 characters)" required/>
+  <prop name="name" type="string" required></prop>
+  <prop name="email" type="string" description="Valid email address" required></prop>
+  <prop name="message" type="string" description="Message content (max 500 characters)" required></prop>
 </tool>
 
 <script>
@@ -187,8 +187,8 @@ document.querySelector('[name=submit_contact]').addEventListener('call', async (
 
 ```html
 <tool name="search_items" description="Search for items">
-  <prop name="query" type="string" required/>
-  <prop name="category" type="string"/>
+  <prop name="query" type="string" required></prop>
+  <prop name="category" type="string"></prop>
 </tool>
 
 <script>
@@ -279,7 +279,7 @@ function TaskManager() {
   
   return (
     <tool ref={toolRef} name="create_task" description="Create a new task">
-      <prop name="title" type="string" required/>
+      <prop name="title" type="string" required></prop>
     </tool>
   );
 }
@@ -290,7 +290,7 @@ function TaskManager() {
 ```vue
 <template>
   <tool name="update_status" @call="handleUpdate" description="Update status">
-    <prop name="status" type="string" required/>
+    <prop name="status" type="string" required></prop>
   </tool>
 </template>
 
@@ -315,7 +315,7 @@ async function handleUpdate(e) {
 </script>
 
 <tool name="add_item" on:call={handleAdd} description="Add an item">
-  <prop name="item" type="string" required/>
+  <prop name="item" type="string" required></prop>
 </tool>
 ```
 
@@ -328,7 +328,7 @@ Create a simple test page:
 <html>
 <body>
   <tool name="test_tool" description="Test tool for debugging">
-    <prop name="message" type="string" required/>
+    <prop name="message" type="string" required></prop>
   </tool>
   
   <script>

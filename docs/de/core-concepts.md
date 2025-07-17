@@ -22,7 +22,7 @@ Ihre Website deklariert Fähigkeiten mithilfe von HTML-Elementen:
 ```html
 <!-- Eine Aktion deklarieren -->
 <tool name="create_task" description="Eine neue Aufgabe erstellen">
-  <prop name="title" type="string" required/>
+  <prop name="title" type="string" required></prop>
 </tool>
 
 <!-- Aktuellen Zustand bereitstellen -->
@@ -118,7 +118,7 @@ Benutzereingabe → KI-Verarbeitung → Werkzeugauswahl → Ereignisverteilung �
 1. **Benutzer besucht Ihre Aufgabenverwaltungs-App**
    ```html
    <tool name="mark_complete" description="Eine Aufgabe als erledigt markieren">
-     <prop name="taskId" type="string" required/>
+     <prop name="taskId" type="string" required></prop>
    </tool>
    
    <context name="tasks">

@@ -126,7 +126,7 @@ function App() {
         The current count is {count}
       </context>
       <Tool name="increment_counter" description="Increments the counter by n" onCall={(event) => handleIncrement(event)}>
-        <prop name="n" type="number" required description="The number to increment the counter by" />
+        <prop name="n" type="number" required description="The number to increment the counter by" ></prop>
       </Tool>
       <button onClick={() => setCount((count) => count + 1)}>
         count is {count}

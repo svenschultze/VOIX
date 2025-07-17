@@ -2,22 +2,22 @@
   <div class="demo-container">
     <!-- Data table tools -->
     <tool name="sort_table" description="Sort the table by a column">
-      <prop name="column" type="string" description="Column name: name, email, role, joined, or status"/>
-      <prop name="order" type="string" description="asc or desc"/>
+      <prop name="column" type="string" description="Column name: name, email, role, joined, or status"></prop>
+      <prop name="order" type="string" description="asc or desc"></prop>
     </tool>
 
     <tool name="filter_table" description="Filter table rows">
-      <prop name="column" type="string" description="Column to filter"/>
-      <prop name="value" type="string" description="Filter value"/>
+      <prop name="column" type="string" description="Column to filter"></prop>
+      <prop name="value" type="string" description="Filter value"></prop>
     </tool>
 
     <tool name="select_rows" description="Select rows by criteria">
-      <prop name="criteria" type="string" description="all, none, or specific status"/>
+      <prop name="criteria" type="string" description="all, none, or specific status"></prop>
     </tool>
 
     <tool name="export_data" description="Export table data">
-      <prop name="format" type="string" description="csv, json, or clipboard"/>
-      <prop name="selected" type="boolean" description="Export only selected rows"/>
+      <prop name="format" type="string" description="csv, json, or clipboard"></prop>
+      <prop name="selected" type="boolean" description="Export only selected rows"></prop>
     </tool>
 
     <tool name="reset_table" description="Reset all filters and sorting">

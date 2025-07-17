@@ -28,7 +28,7 @@ Definiere Tools und Kontexte in den Templates deiner Angular-Komponenten mit den
 </context>
 
 <tool name="change_number" description="Ändere die geheime Zahl" (call)="changeNumber($event)">
-  <prop name="number" type="number" />
+  <prop name="number" type="number" ></prop>
 </tool>
 
 <div>
@@ -65,7 +65,7 @@ Verwende Angulars strukturelle Direktiven (z. B. `*ngIf`), um Tools oder Konte
 ```html
 <div *ngIf="isAdmin">
   <tool name="admin_action" description="Führe eine Admin-Aktion aus" (call)="performAdminAction($event)">
-    <prop name="actionName" type="string" />
+    <prop name="actionName" type="string" ></prop>
   </tool>
 
   <context name="admin_info">
@@ -93,7 +93,7 @@ Verwende `async`-Funktionen im `(call)`-Handler für Tools, die Daten abrufen od
 
 ```html
 <tool name="get_weather" description="Hole Wetterdaten für eine Stadt" (call)="getWeather($event)">
-  <prop name="location" type="string" description="Stadtname" />
+  <prop name="location" type="string" description="Stadtname" ></prop>
 </tool>
 ```
 

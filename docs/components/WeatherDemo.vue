@@ -1,7 +1,7 @@
 <template>
   <div class="weather-demo">
     <tool name="get_weather" description="Get the current weather for a location" @call="getWeather" return>
-      <prop name="location" type="string" description="The location to get the weather for." required />
+      <prop name="location" type="string" description="The location to get the weather for." required ></prop>
     </tool>
     <context name="weather_data">
       {{ weatherDataContext }}

@@ -28,7 +28,7 @@ Define tools and contexts in your Angular component templates using the `<tool>`
 </context>
 
 <tool name="change_number" description="Change the secret number" (call)="changeNumber($event)">
-  <prop name="number" type="number" />
+  <prop name="number" type="number" ></prop>
 </tool>
 
 <div>
@@ -66,7 +66,7 @@ Use Angular's structural directives (e.g., `*ngIf`) to conditionally render tool
 ```html
 <div *ngIf="isAdmin">
   <tool name="admin_action" description="Do an admin thing" (call)="performAdminAction($event)">
-    <prop name="actionName" type="string" />
+    <prop name="actionName" type="string" ></prop>
   </tool>
 
   <context name="admin_info">
@@ -94,7 +94,7 @@ Use `async` functions inside the `(call)` handler for tools that fetch or comput
 
 ```html
 <tool name="get_weather" description="Fetch weather for a city" (call)="getWeather($event)">
-  <prop name="location" type="string" description="City name" />
+  <prop name="location" type="string" description="City name" ></prop>
 </tool>
 ```
 

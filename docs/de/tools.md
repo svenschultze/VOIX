@@ -6,7 +6,7 @@ Werkzeuge deklarieren Aktionen, die die KI auf Ihrer Website ausführen kann. Si
 
 ```html
 <tool name="werkzeugName" description="Was dieses Werkzeug tut">
-  <prop name="paramName" type="string" required/>
+  <prop name="paramName" type="string" required></prop>
 </tool>
 ```
 
@@ -32,9 +32,9 @@ Werkzeuge verwenden `<prop>`-Elemente, um Parameter zu definieren:
 
 ```html
 <tool name="create_meeting" description="Ein neues Meeting planen">
-  <prop name="title" type="string" required/>
-  <prop name="date" type="string" description="Datum im YYYY-MM-DD-Format" required/>
-  <prop name="duration" type="number" description="Dauer in Minuten"/>
+  <prop name="title" type="string" required></prop>
+  <prop name="date" type="string" description="Datum im YYYY-MM-DD-Format" required></prop>
+  <prop name="duration" type="number" description="Dauer in Minuten"></prop>
 </tool>
 ```
 
@@ -50,10 +50,10 @@ Werkzeuge verwenden `<prop>`-Elemente, um Parameter zu definieren:
 Verwenden Sie Beschreibungen, um Formatanforderungen oder Einschränkungen zu verdeutlichen:
 
 ```html
-<prop name="email" type="string" description="Gültige E-Mail-Adresse" required/>
-<prop name="phone" type="string" description="Telefonnummer im E.164-Format"/>
-<prop name="startTime" type="string" description="Zeit im HH:MM-Format (24-Stunden)"/>
-<prop name="amount" type="number" description="Betrag in USD (bis zu 2 Dezimalstellen)"/>
+<prop name="email" type="string" description="Gültige E-Mail-Adresse" required></prop>
+<prop name="phone" type="string" description="Telefonnummer im E.164-Format"></prop>
+<prop name="startTime" type="string" description="Zeit im HH:MM-Format (24-Stunden)"></prop>
+<prop name="amount" type="number" description="Betrag in USD (bis zu 2 Dezimalstellen)"></prop>
 ```
 
 ### Arrays und Objekte
@@ -64,8 +64,8 @@ Für komplexe Datenstrukturen:
 <tool name="invite_users" description="Benutzer zum Projekt einladen">
   <array name="users" required>
     <dict>
-      <prop name="email" type="string" description="Gültige E-Mail-Adresse" required/>
-      <prop name="role" type="string" description="Entweder 'viewer', 'editor' oder 'admin'"/>
+      <prop name="email" type="string" description="Gültige E-Mail-Adresse" required></prop>
+      <prop name="role" type="string" description="Entweder 'viewer', 'editor' oder 'admin'"></prop>
     </dict>
   </array>
 </tool>
@@ -89,7 +89,7 @@ Fügen Sie dazu das `return`-Attribut zum `<tool>`-Element hinzu und lösen Sie 
 
 ```html
 <tool name="get_weather" description="Aktuelle Wetterdaten abrufen" return>
-  <prop name="location" type="string" required/>
+  <prop name="location" type="string" required></prop>
 </tool>
 ```
 
@@ -160,9 +160,9 @@ document.querySelector('[name=toggle_theme]').addEventListener('call', (e) => {
 
 ```html
 <tool name="submit_contact" description="Kontaktformular senden">
-  <prop name="name" type="string" required/>
-  <prop name="email" type="string" description="Gültige E-Mail-Adresse" required/>
-  <prop name="message" type="string" description="Nachrichteninhalt (max. 500 Zeichen)" required/>
+  <prop name="name" type="string" required></prop>
+  <prop name="email" type="string" description="Gültige E-Mail-Adresse" required></prop>
+  <prop name="message" type="string" description="Nachrichteninhalt (max. 500 Zeichen)" required></prop>
 </tool>
 
 <script>
@@ -185,8 +185,8 @@ document.querySelector('[name=submit_contact]').addEventListener('call', async (
 
 ```html
 <tool name="search_items" description="Nach Artikeln suchen">
-  <prop name="query" type="string" required/>
-  <prop name="category" type="string"/>
+  <prop name="query" type="string" required></prop>
+  <prop name="category" type="string"></prop>
 </tool>
 
 <script>
@@ -277,7 +277,7 @@ function TaskManager() {
   
   return (
     <tool ref={toolRef} name="create_task" description="Eine neue Aufgabe erstellen">
-      <prop name="title" type="string" required/>
+      <prop name="title" type="string" required></prop>
     </tool>
   );
 }
@@ -288,7 +288,7 @@ function TaskManager() {
 ```vue
 <template>
   <tool name="update_status" @call="handleUpdate" description="Status aktualisieren">
-    <prop name="status" type="string" required/>
+    <prop name="status" type="string" required></prop>
   </tool>
 </template>
 
@@ -313,7 +313,7 @@ async function handleUpdate(e) {
 </script>
 
 <tool name="add_item" on:call={handleAdd} description="Einen Artikel hinzufügen">
-  <prop name="item" type="string" required/>
+  <prop name="item" type="string" required></prop>
 </tool>
 ```
 
@@ -326,7 +326,7 @@ Erstellen Sie eine einfache Testseite:
 <html>
 <body>
   <tool name="test_tool" description="Testwerkzeug zum Debuggen">
-    <prop name="message" type="string" required/>
+    <prop name="message" type="string" required></prop>
   </tool>
   
   <script>

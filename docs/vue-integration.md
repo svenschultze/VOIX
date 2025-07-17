@@ -53,8 +53,8 @@ Defining tools within your components encapsulates functionality and keeps your 
       description="Update this user's profile"
       @call="handleUpdateProfile"
     >
-      <prop name="field" type="string" required description="name, email, or bio"/>
-      <prop name="value" type="string" required/>
+      <prop name="field" type="string" required description="name, email, or bio"></prop>
+      <prop name="value" type="string" required></prop>
     </tool>
 
     <tool
@@ -135,7 +135,7 @@ All tools in your application must have a unique `name`. When creating reusable 
       description="Add this product to the cart"
       @call="handleAddToCart"
     >
-      <prop name="quantity" type="number" required/>
+      <prop name="quantity" type="number" required></prop>
     </tool>
 
     <tool
@@ -193,7 +193,7 @@ You can use `v-if` to conditionally render tools based on application state, suc
       description="Delete selected users"
       @call="handleDeleteUsers"
     >
-      <prop name="userIds" type="array" required/>
+      <prop name="userIds" type="array" required></prop>
     </tool>
 
     <!-- This tool is available to all users -->
@@ -202,7 +202,7 @@ You can use `v-if` to conditionally render tools based on application state, suc
       description="Export your data"
       @call="handleExportData"
     >
-      <prop name="format" type="string" description="csv or json"/>
+      <prop name="format" type="string" description="csv or json"></prop>
     </tool>
 
     <context name="permissions">

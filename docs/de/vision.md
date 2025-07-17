@@ -58,12 +58,12 @@ Stellen Sie sich vor, `<tool>` und `<context>` würden Teil des HTML-Standards u
     
     <!-- Standard-KI-Fähigkeiten -->
     <tool name="produkte_suchen" description="Durchsuchen Sie unseren Katalog">
-        <prop name="query" type="string" required/>
+        <prop name="query" type="string" required></prop>
     </tool>
     
     <tool name="zum_warenkorb_hinzufuegen" description="Artikel zum Warenkorb hinzufügen">
-        <prop name="productId" type="string" required/>
-        <prop name="quantity" type="number"/>
+        <prop name="productId" type="string" required></prop>
+        <prop name="quantity" type="number"></prop>
     </tool>
     
     <context name="warenkorb_status">
