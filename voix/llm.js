@@ -125,6 +125,10 @@ export async function handleWhisperTranscription(data) {
 // Persistent conversation history (per extension session)
 let conversationHistory = [];
 
+export function resetConversationHistory() {
+  conversationHistory = [];
+}
+
 export async function handleLLMRequest(message) {
   try {
     // Get the active tab

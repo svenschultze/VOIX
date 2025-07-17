@@ -318,7 +318,6 @@
   background: var(--voix-background-secondary);
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
 .chat-message {
@@ -604,29 +603,29 @@
   font-weight: 500;
 }
 
-/* Resources Section */
-.resources-section {
+/* context Section */
+.context-section {
   padding: 12px 16px;
   border-top: 1px solid var(--voix-border);
 }
 
-.resources-section-header {
+.context-section-header {
   margin-bottom: 12px;
 }
 
-.resources-section-title {
+.context-section-title {
   font-weight: 600;
   font-size: 13px;
   color: var(--voix-text);
 }
 
-.resources-list {
+.context-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.resource-item {
+.context-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -637,22 +636,22 @@
   transition: all 0.2s ease;
 }
 
-.resource-item:hover {
+.context-item:hover {
   background: var(--voix-background);
   border-color: var(--voix-primary-border);
 }
 
-.resource-icon {
+.context-icon {
   font-size: 16px;
   flex-shrink: 0;
 }
 
-.resource-info {
+.context-info {
   flex: 1;
   min-width: 0;
 }
 
-.resource-name {
+.context-name {
   font-size: 12px;
   font-weight: 500;
   color: var(--voix-text);
@@ -661,7 +660,7 @@
   text-overflow: ellipsis;
 }
 
-.resource-type {
+.context-type {
   font-size: 11px;
   color: var(--voix-text-muted);
 }
@@ -1207,4 +1206,57 @@
 
 p {
   margin: 0;
+}
+
+/* Toolbar styles - icon-only, matching control buttons */
+.voix-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toolbar-btn {
+  background: none;
+  border: none;
+  color: var(--voix-text-secondary);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toolbar-btn:hover {
+  background: var(--voix-primary-light);
+  border: 1px solid var(--voix-primary);
+  color: var(--voix-primary);
+  box-shadow: 0 2px 8px rgba(0, 86, 179, 0.15);
+}
+
+.toolbar-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+.toolbar-btn:hover {
+  background: var(--voix-primary-light);
+  border-color: var(--voix-primary);
+  color: var(--voix-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 86, 179, 0.15);
+}
+
+.toolbar-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.toolbar-btn:active svg {
+  transform: scale(1.1);
 }

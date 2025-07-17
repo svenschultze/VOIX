@@ -64,6 +64,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch(error => sendResponse({ success: false, error: error.message }));
     return true;
   }
+  if (message.type === 'RESET_CHAT_HISTORY') {
+    if (llm && typeof llm.resetConversationHistory === 'function') {
+      llm.resetConversationHistory();
+    }
+    sendResponse({ success: true });
+    return true;
+  }
 });
 
 async function openPermissionsTab() {

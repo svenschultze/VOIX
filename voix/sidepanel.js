@@ -20,6 +20,10 @@ class VOIXSidePanel {
     this.vadInstance = null;
     this.liveVoiceStream = null;
     this.vadSupported = false;
+
+    // Element storage for efficient updates
+    this.toolElements = {};
+    this.contextElements = {};
     
     this.init();
   }
@@ -50,6 +54,9 @@ class VOIXSidePanel {
     
     // Load initial tools data
     this.updateToolsOverview();
+    
+    // Set up toolbar button actions
+    this.setupToolbar();
     
     console.log('VOIX Side Panel initialized');
   }
@@ -132,6 +139,31 @@ class VOIXSidePanel {
     // Update voice button states based on support
     this.updateVoiceUI();
     this.updateLiveVoiceUI();
+  }
+
+  setupToolbar() {
+    // Options button opens the options page
+    const optionsBtn = document.getElementById('toolbar-options-btn');
+    if (optionsBtn) {
+      optionsBtn.addEventListener('click', () => {
+        if (chrome.runtime.openOptionsPage) {
+          chrome.runtime.openOptionsPage();
+        } else {
+          chrome.tabs.create({ url: 'options.html' });
+        }
+      });
+    }
+    // Reset Context button resets chat context and refreshes tools/context
+    const resetContextBtn = document.getElementById('toolbar-reset-context-btn');
+    if (resetContextBtn) {
+      resetContextBtn.addEventListener('click', async () => {
+        // Optionally send a message to background/content script to reset context
+        chrome.runtime.sendMessage({ type: 'RESET_CONTEXT' }, () => {
+          this.resetChat();
+          this.updateToolsOverview();
+        });
+      });
+    }
   }
 
   async toggleLiveVoiceMode() {
@@ -840,24 +872,21 @@ class VOIXSidePanel {
 
   resetChat() {
     const messagesContainer = document.getElementById('chat-messages');
-    
     // Get the tools overview element to preserve it
     const toolsOverview = document.getElementById('chat-tools-overview');
-    
     // Clear only the chat messages, not the entire container
     const messageElements = messagesContainer.querySelectorAll('.chat-message');
     messageElements.forEach(element => element.remove());
-    
     // Clear the messages array
     this.messages = [];
-    
     // Add welcome message back
     const welcomeMessage = this.createMessageElement('assistant', 
       'Hello! How can I help you today? I can see the tools and resources available on this page - just ask me to interact with them or help with any task.');
     messagesContainer.appendChild(welcomeMessage);
-    
     // Update the tools overview to refresh it
     this.updateToolsOverview();
+    // --- NEW: Reset LLM backend conversation ---
+    chrome.runtime.sendMessage({ type: 'RESET_CHAT_HISTORY' });
   }
 
   async showExamplesSection() {
@@ -918,114 +947,180 @@ class VOIXSidePanel {
     });
   }
 
+  // *** MODIFIED FUNCTION ***
   async updateToolsOverview() {
-    const overviewContent = document.getElementById('tools-overview-content');
+    const overviewContainer = document.getElementById('tools-overview-content');
     try {
-      const { tools, context } = await this.getToolsAndContext();
-      console.log('Updating tools overview with data:', { tools, context });
-      // Ensure context is always an array
-      const contextArr = Array.isArray(context) ? context : [];
-      // Check for major changes and refresh examples if needed
-      const hasChanged = this.detectMajorChanges(tools, contextArr);
-      if (hasChanged) {
-        console.log('Major changes detected in tools/resources, refreshing example prompts');
-        this.showExamplesSection(); // Refresh example prompts
-      }
-      this.lastToolsSnapshot = this.createToolsSnapshot(tools, contextArr);
-      if (tools.length === 0 && contextArr.length === 0) {
-        overviewContent.innerHTML = `
-          <div class="tools-overview-empty">
-            <div class="empty-icon">🔍</div>
-            <div class="empty-text">No tools or resources detected on this page</div>
-            <div class="empty-subtext">Navigate to a page with interactive elements to see available tools</div>
-          </div>
-        `;
-        return;
-      }
-      let html = '';
-      if (tools.length > 0) {
-        html += `
-          <div class="tools-section">
-            <div class="tools-section-header">
-              <span class="tools-section-title">🛠️ Tools (${tools.length})</span>
-            </div>
-            <div class="tools-grid">
-        `;
-        
-        tools.forEach(tool => {
-          // Extract tool category from name or description for better organization
-          const category = this.getToolCategory(tool.name, tool.description);
-          html += `
-            <div class="tool-card ${category}">
-              <div class="tool-header">
-                <span class="tool-icon">${this.getToolIcon(category)}</span>
-                <span class="tool-name">${tool.name}</span>
-              </div>
-              <div class="tool-description">${tool.description}</div>
-              ${tool.inputSchema && tool.inputSchema.properties ? 
-                `<div class="tool-params">
-                  <span class="params-label">Parameters:</span>
-                  ${Object.keys(tool.inputSchema.properties).slice(0, 3).join(', ')}
-                  ${Object.keys(tool.inputSchema.properties).length > 3 ? '...' : ''}
-                </div>` : ''
-              }
-            </div>
-          `;
-        });
-        
-        html += `
-            </div>
-          </div>
-        `;
-      }
-      
-      // Resources section
-      if (contextArr.length > 0) {
-        html += `
-          <div class="resources-section">
-            <div class="resources-section-header">
-              <span class="resources-section-title">📄 Context (${contextArr.length})</span>
-            </div>
-            <div class="resources-list">
-        `;
-        contextArr.forEach(resource => {
-          const resourceType = this.getResourceType(resource.uri, resource.mimeType);
-          // Show the start of the resource content (first 80 chars, ellipsis if longer)
-          let preview = '';
-          if (resource.content) {
-            preview = resource.content.length > 80 ?
-              resource.content.slice(0, 80) + '…' :
-              resource.content;
-          }
-          html += `
-            <div class="resource-item ${resourceType}">
-              <span class="resource-icon">${this.getResourceIcon(resourceType)}</span>
-              <div class="resource-info">
-                <details class="resource-details">
-                  <summary class="resource-summary">${resource.name || resource.uri}</summary>
-                  <pre><code>${resource.content}</code></pre>
-                </details>
-              </div>
-            </div>
-          `;
-        });
-        html += `
-            </div>
-          </div>
-        `;
-      }
-      
-      overviewContent.innerHTML = html;
-      
+        const { tools, context } = await this.getToolsAndContext();
+        console.log('Updating tools overview with data:', { tools, context });
+
+        const contextArr = Array.isArray(context) ? context : [];
+
+        const hasChanged = this.detectMajorChanges(tools, contextArr);
+        if (hasChanged) {
+            console.log('Major changes detected, refreshing example prompts');
+            this.showExamplesSection();
+        }
+        this.lastToolsSnapshot = this.createToolsSnapshot(tools, contextArr);
+
+        // remove the .tools-overview-loading element if it exists
+        const loadingElement = overviewContainer.querySelector('.tools-overview-loading');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+
+        if (tools.length === 0 && contextArr.length === 0) {
+            overviewContainer.innerHTML = `
+                <div class="tools-overview-empty">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-text">No tools or resources detected on this page</div>
+                    <div class="empty-subtext">Navigate to a page with interactive elements to see available tools</div>
+                </div>
+            `;
+            this.toolElements = {};
+            this.contextElements = {};
+            return;
+        } else {
+            const emptyState = overviewContainer.querySelector('.tools-overview-empty');
+            if (emptyState) emptyState.remove();
+        }
+
+        this.manageSections(overviewContainer, tools.length, contextArr.length);
+
+        const newToolNames = new Set(tools.map(t => t.name));
+        const newContextNames = new Set(contextArr.map(c => c.name));
+
+        const toolsGrid = overviewContainer.querySelector('.tools-grid');
+        if (toolsGrid) {
+            for (const toolName in this.toolElements) {
+                if (!newToolNames.has(toolName)) {
+                    this.toolElements[toolName].remove();
+                    delete this.toolElements[toolName];
+                }
+            }
+            for (const tool of tools) {
+                if (!this.toolElements[tool.name]) {
+                    const toolElement = this.createToolElement(tool);
+                    toolsGrid.appendChild(toolElement);
+                    this.toolElements[tool.name] = toolElement;
+                }
+            }
+        }
+
+        const contextList = overviewContainer.querySelector('.context-list');
+        if (contextList) {
+            for (const contextName in this.contextElements) {
+                if (!newContextNames.has(contextName)) {
+                    this.contextElements[contextName].remove();
+                    delete this.contextElements[contextName];
+                }
+            }
+
+            for (const ctx of contextArr) {
+                if (this.contextElements[ctx.name]) {
+                    const existingElement = this.contextElements[ctx.name];
+                    const codeElement = existingElement.querySelector('pre code');
+                    if (codeElement && codeElement.textContent !== ctx.content) {
+                        codeElement.textContent = ctx.content;
+                    }
+                } else {
+                    const contextElement = this.createContextElement(ctx);
+                    contextList.appendChild(contextElement);
+                    this.contextElements[ctx.name] = contextElement;
+                }
+            }
+        }
+
     } catch (error) {
-      console.error('Error updating tools overview:', error);
-      overviewContent.innerHTML = `
-        <div class="tools-overview-error">
-          <div class="error-icon">⚠️</div>
-          <div class="error-text">Error loading tools information</div>
-        </div>
-      `;
+        console.error('Error updating tools overview:', error);
+        overviewContainer.innerHTML = `
+            <div class="tools-overview-error">
+                <div class="error-icon">⚠️</div>
+                <div class="error-text">Error loading tools information</div>
+            </div>
+        `;
+        this.toolElements = {};
+        this.contextElements = {};
     }
+  }
+
+  // *** NEW HELPER FUNCTION ***
+  manageSections(container, toolCount, contextCount) {
+    let toolsSection = container.querySelector('.tools-section');
+    if (toolCount > 0 && !toolsSection) {
+        toolsSection = document.createElement('div');
+        toolsSection.className = 'tools-section';
+        toolsSection.innerHTML = `
+            <div class="tools-section-header">
+                <span class="tools-section-title">🛠️ Tools (${toolCount})</span>
+            </div>
+            <div class="tools-grid"></div>
+        `;
+        container.appendChild(toolsSection);
+    } else if (toolCount === 0 && toolsSection) {
+        toolsSection.remove();
+    } else if (toolCount > 0 && toolsSection) {
+        toolsSection.querySelector('.tools-section-title').textContent = `🛠️ Tools (${toolCount})`;
+    }
+
+    let contextSection = container.querySelector('.context-section');
+    if (contextCount > 0 && !contextSection) {
+        contextSection = document.createElement('div');
+        contextSection.className = 'context-section';
+        contextSection.innerHTML = `
+            <div class="context-section-header">
+                <span class="context-section-title">📄 Context (${contextCount})</span>
+            </div>
+            <div class="context-list"></div>
+        `;
+        const toolsSect = container.querySelector('.tools-section');
+        if (toolsSect) {
+            toolsSect.insertAdjacentElement('afterend', contextSection);
+        } else {
+            container.prepend(contextSection);
+        }
+    } else if (contextCount === 0 && contextSection) {
+        contextSection.remove();
+    } else if (contextCount > 0 && contextSection) {
+        contextSection.querySelector('.context-section-title').textContent = `📄 Context (${contextCount})`;
+    }
+  }
+
+  // *** NEW HELPER FUNCTION ***
+  createToolElement(tool) {
+    const category = this.getToolCategory(tool.name, tool.description);
+    const element = document.createElement('div');
+    element.className = `tool-card ${category}`;
+    element.innerHTML = `
+        <div class="tool-header">
+            <span class="tool-icon">${this.getToolIcon(category)}</span>
+            <span class="tool-name">${this.escapeHtml(tool.name)}</span>
+        </div>
+        <div class="tool-description">${this.escapeHtml(tool.description)}</div>
+        ${tool.inputSchema && tool.inputSchema.properties ? 
+            `<div class="tool-params">
+                <span class="params-label">Parameters:</span>
+                ${Object.keys(tool.inputSchema.properties).slice(0, 3).map(p => this.escapeHtml(p)).join(', ')}
+                ${Object.keys(tool.inputSchema.properties).length > 3 ? '...' : ''}
+            </div>` : ''
+        }
+    `;
+    return element;
+  }
+
+  // *** NEW HELPER FUNCTION ***
+  createContextElement(ctx) {
+    const element = document.createElement('div');
+    element.className = 'context-item';
+    element.innerHTML = `
+        <div class="context-info">
+            <details class="context-details">
+                <summary class="context-summary">${this.escapeHtml(ctx.name) || 'Context'}</summary>
+                <pre><code>${this.escapeHtml(ctx.content)}</code></pre>
+            </details>
+        </div>
+    `;
+    return element;
   }
 
   getToolCategory(name, description) {
