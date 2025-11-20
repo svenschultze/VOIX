@@ -6,6 +6,8 @@
 
 For complete documentation, visit: [https://svenschultze.github.io/VOIX/](https://svenschultze.github.io/VOIX/)
 
+For a demo page to use to test VOIX, you can use [https://svenschultze.github.io/voix-kanban/](https://svenschultze.github.io/voix-kanban/)
+
 ## 🚀 Key Features
 
   * **Easy Integration**: Add AI capabilities to any website with simple HTML tags. No complex setup or API integration is required.
